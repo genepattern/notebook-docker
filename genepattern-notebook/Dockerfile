@@ -9,8 +9,8 @@ MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 EXPOSE 8888
 
 # Upgrade ipywidgets
-RUN conda update -n python3.6 ipywidgets widgetsnbextension -y
-RUN cp /opt/conda/envs/python3.6/lib/python3.6/site-packages/widgetsnbextension/static/* /opt/conda/share/jupyter/nbextensions/jupyter-js-widgets/
+RUN conda update ipywidgets widgetsnbextension -y
+RUN cp /opt/conda/lib/python3.6/site-packages/widgetsnbextension/static/* /opt/conda/share/jupyter/nbextensions/jupyter-js-widgets/
 
 USER root
 
