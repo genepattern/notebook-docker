@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y python-qt4
 
 # Install R and RPY2
 RUN sudo apt-get update
+RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
 RUN sudo apt-get install r-base r-base-dev -y
 RUN pip install rpy2==2.8.5
 RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
