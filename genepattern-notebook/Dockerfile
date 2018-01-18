@@ -10,11 +10,10 @@ EXPOSE 8888
 
 # Upgrade ipywidgets
 RUN conda update ipywidgets widgetsnbextension -y
-# RUN mkdir /usr/local/share/jupyter/nbextensions/jupyter-js-widgets
-# RUN cp /opt/conda/lib/python3.6/site-packages/widgetsnbextension/static/* /opt/conda/share/jupyter/nbextensions/jupyter-js-widgets/
 
 USER root
 
+# Install ipywidgets' nbextension
 RUN jupyter nbextension install --py widgetsnbextension
 
 # Install the missing Qt4 API (used by matplotlib)
@@ -26,7 +25,7 @@ RUN gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
 RUN gpg -a --export E084DAB9 | sudo apt-key add -
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
 RUN apt-get install r-base r-base-dev -y
-RUN pip install rpy2==2.8.5
+RUN pip install rpy2==2.8.5 --ignore-installed
 RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
 RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/startup/mymagics.ipy
 RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
