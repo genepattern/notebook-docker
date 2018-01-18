@@ -22,6 +22,10 @@ RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
 RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/startup/mymagics.ipy
 RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
 
+# Upgrade ipywidgets
+RUN pip install --upgrade ipywidgets widgetsnbextension
+RUN cp /opt/conda/envs/python3.6/lib/python3.6/site-packages/widgetsnbextension/static/* /opt/conda/share/jupyter/nbextensions/jupyter-js-widgets/
+
 # Install the GenePattern Notebook environment
 RUN pip install nbtools genepattern-python genepattern-notebook jupyter-wysiwyg
 
