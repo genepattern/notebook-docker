@@ -31,9 +31,9 @@ RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/sta
 RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
 
 # Install R libraries
-RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
-RUN Rscript -e "install.packages('ggplot2')"
-RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
+#RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
+#RUN Rscript -e "install.packages('ggplot2')"
+#RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
 # Install the GenePattern Notebook environment
 RUN pip install nbtools genepattern-python genepattern-notebook jupyter-wysiwyg
