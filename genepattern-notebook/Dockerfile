@@ -16,6 +16,13 @@ USER root
 # Install ipywidgets' nbextension
 RUN jupyter nbextension install --py widgetsnbextension
 
+# Install Docker from Docker Inc. repositories.
+RUN curl -sSL https://get.docker.com/ | sh
+
+# Install the magic wrapper.
+RUN wget https://raw.githubusercontent.com/jpetazzo/dind/master/wrapdocker --output-document=/usr/local/bin/wrapdocker
+RUN chmod +x /usr/local/bin/wrapdocker
+
 # Install the missing Qt4 API (used by matplotlib)
 RUN apt-get update && apt-get install -y python-qt4
 
