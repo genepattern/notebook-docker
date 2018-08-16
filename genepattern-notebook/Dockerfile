@@ -28,11 +28,11 @@ RUN apt-get update && apt-get install -y python-qt4
 
 # Install R and RPY2
 RUN apt-get install gpg -y
-RUN sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list'
+RUN sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/" >> /etc/apt/sources.list'
 RUN gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
 RUN gpg -a --export E084DAB9 | sudo apt-key add -
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
-RUN apt-get install r-recommended r-base-dev -y
+RUN apt-get install r-base r-base-dev -y
 RUN pip install rpy2==2.8.5 --ignore-installed
 RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
 RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/startup/mymagics.ipy
