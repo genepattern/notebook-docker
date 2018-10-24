@@ -1,20 +1,22 @@
-# Installs Jupyter Notebook and IPython kernel from the current branch
-# Another Docker container should inherit with `FROM jupyter/notebook`
-# to run actual services.
+# Dockerfile for running the GenePattern Notebook Environment
 
-FROM jupyter/scipy-notebook
+# Pull the latest known good scipy notebook image from the official Jupyter stacks
+# Built 10-24-2018
+FROM jupyter/scipy-notebook:ebb42274ac29
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
 EXPOSE 8888
 
-# Upgrade ipywidgets
-RUN conda update ipywidgets widgetsnbextension -y
+#############################################
+##  ROOT                                   ##
+##      Install Docker                     ##
+#############################################
 
 USER root
 
-# Install ipywidgets' nbextension
-RUN jupyter nbextension install --py widgetsnbextension
+# Install the missing Qt4 API (used by matplotlib)
+RUN apt-get update && apt-get install -y curl
 
 # Install Docker from Docker Inc. repositories.
 RUN curl -sSL https://get.docker.com/ | sh
@@ -23,8 +25,22 @@ RUN curl -sSL https://get.docker.com/ | sh
 RUN wget https://raw.githubusercontent.com/jpetazzo/dind/master/wrapdocker --output-document=/usr/local/bin/wrapdocker
 RUN chmod +x /usr/local/bin/wrapdocker
 
+#############################################
+##  ROOT                                   ##
+##      Update QT4                         ##
+#############################################
+
+USER root
+
 # Install the missing Qt4 API (used by matplotlib)
-RUN apt-get update && apt-get install -y python-qt4
+RUN apt-get install -y python-qt4
+
+#############################################
+##  ROOT                                   ##
+##      Install R and rpy2                 ##
+#############################################
+
+USER root
 
 # Install R and RPY2
 RUN apt-get install gpg -y
@@ -39,18 +55,69 @@ RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/sta
 RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
 
 # Install R libraries
-#RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
-#RUN Rscript -e "install.packages('ggplot2')"
-#RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
+RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > /usr/lib/R/.Rprofile
+RUN Rscript -e "install.packages('ggplot2')"
+RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
-# Install the GenePattern Notebook environment
-RUN pip install nbtools genepattern-python genepattern-notebook jupyter-wysiwyg
+#############################################
+##  ROOT                                   ##
+##      Configure nbextensions             ##
+#############################################
+
+USER root
+
+# Install nbextensions in default Python environment
+RUN pip install nbtools genepattern-notebook jupyter_wysiwyg
 
 # Enable the extensions
-RUN jupyter nbextension enable --py widgetsnbextension
 RUN jupyter nbextension enable --py nbtools
 RUN jupyter nbextension enable --py genepattern
 RUN jupyter nbextension enable --py jupyter_wysiwyg
 
+#############################################
+##  $NB_USER                               ##
+##      Create the Python 3.6 environment  ##
+#############################################
+
 USER $NB_USER
 
+# Create the Python 3.6 environment
+RUN conda update -y conda
+RUN conda create -y --name python3.6 python=3.6 anaconda ipykernel==5.1.0
+
+# Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
+# The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
+RUN /bin/bash -c "source activate python3.6 && \
+    conda install -y 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=0.23*' 'numexpr=2.6*' 'matplotlib=2.2*' 'scipy=1.1*' 'seaborn=0.9*' \
+    'scikit-learn=0.19*' 'scikit-image=0.14*' 'sympy=1.1*' 'cython=0.28*' 'patsy=0.5*' 'statsmodels=0.9*' 'cloudpickle=0.5*' 'dill=0.2*' 'numba=0.38*' \
+    'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd'"
+
+# Install the GenePattern Notebook Environment packages
+# The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
+RUN /bin/bash -c "source activate python3.6 && \
+    conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0'"
+RUN /bin/bash -c "source activate python3.6 && \
+    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
+    'ccalnoir==2.3' 'cuzcatlan==0.7.7' 'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'ndex2==1.2.0.*' 'plotly==2.4.1' \
+    'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0'"
+
+#############################################
+##  ROOT                                   ##
+##      Configure Jupyter kernels          ##
+#############################################
+
+USER root
+
+# Add the environments as Jupyter kernels
+RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'"
+
+# Remove the default Python kernel
+RUN rm -r /opt/conda/share/jupyter/kernels/python3
+RUN echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
+
+#############################################
+##  $NB_USER                               ##
+##      Switch back to the user account    ##
+#############################################
+
+USER $NB_USER
