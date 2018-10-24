@@ -46,18 +46,10 @@ RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
 # Install the GenePattern Notebook environment
 RUN pip install nbtools genepattern-python genepattern-notebook jupyter-wysiwyg
 
-# Enable the extension
+# Enable the extensions
 RUN jupyter nbextension enable --py widgetsnbextension
-
-RUN jupyter nbextension install --py nbtools
 RUN jupyter nbextension enable --py nbtools
-RUN jupyter serverextension enable --py nbtools
-
-RUN jupyter nbextension install --py genepattern
 RUN jupyter nbextension enable --py genepattern
-RUN jupyter serverextension enable --py genepattern
-
-RUN jupyter nbextension install --py jupyter_wysiwyg
 RUN jupyter nbextension enable --py jupyter_wysiwyg
 
 USER $NB_USER
