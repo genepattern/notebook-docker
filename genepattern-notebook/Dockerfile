@@ -16,14 +16,20 @@ EXPOSE 8888
 USER root
 
 # Install the missing Qt4 API (used by matplotlib)
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 
 # Install Docker from Docker Inc. repositories.
-RUN curl -sSL https://get.docker.com/ | sh
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+RUN apt-get update && apt-get install -y docker-ce
 
 # Install the magic wrapper.
 RUN wget https://raw.githubusercontent.com/jpetazzo/dind/master/wrapdocker --output-document=/usr/local/bin/wrapdocker
 RUN chmod +x /usr/local/bin/wrapdocker
+
+# Set up the Docker service
+RUN gpasswd -a $NB_USER docker
+RUN newgrp docker
 
 #############################################
 ##  ROOT                                   ##
@@ -95,11 +101,36 @@ RUN /bin/bash -c "source activate python3.6 && \
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.6 && \
-    conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0'"
+    conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'python-igraph==0.7.1'"
 RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'ccalnoir==2.3' 'cuzcatlan==0.7.7' 'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'ndex2==1.2.0.*' 'plotly==2.4.1' \
     'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0'"
+
+#############################################
+##  $NB_USER                               ##
+##      Create the Python 3.7 environment  ##
+#############################################
+
+USER $NB_USER
+
+# Create the Python 3.7 environment
+RUN conda create -y --name python3.7 python=3.7 anaconda ipykernel==5.1.0
+
+# Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
+# The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
+RUN /bin/bash -c "source activate python3.7 && \
+    conda install -y 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
+    'scikit-learn' 'scikit-image' 'sympy' 'cython' 'patsy' 'statsmodels' 'cloudpickle' 'dill' 'numba' \
+    'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd'"
+
+# Install the GenePattern Notebook Environment packages
+# The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
+RUN /bin/bash -c "source activate python3.7 && \
+    conda install -y -c conda-forge 'biopython' 'igraph' 'babel'"
+RUN /bin/bash -c "source activate python3.7 && \
+    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
+    'ccalnoir==2.3' 'cuzcatlan==0.7.7' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' 'plotly==2.4.1' 'rpy2==2.8.5'"
 
 #############################################
 ##  ROOT                                   ##
@@ -110,6 +141,7 @@ USER root
 
 # Add the environments as Jupyter kernels
 RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'"
+RUN /bin/bash -c "source activate python3.7 && python -m ipykernel install --name python3.7 --display-name 'Python 3.7'"
 
 # Remove the default Python kernel
 RUN rm -r /opt/conda/share/jupyter/kernels/python3
