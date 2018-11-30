@@ -96,16 +96,19 @@ RUN conda create -y --name python3.6 python=3.6 anaconda ipykernel==5.1.0
 RUN /bin/bash -c "source activate python3.6 && \
     conda install -y 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=0.23*' 'numexpr=2.6*' 'matplotlib=2.2*' 'scipy=1.1*' 'seaborn=0.9*' \
     'scikit-learn=0.19*' 'scikit-image=0.14*' 'sympy=1.1*' 'cython=0.28*' 'patsy=0.5*' 'statsmodels=0.9*' 'cloudpickle=0.5*' 'dill=0.2*' 'numba=0.38*' \
-    'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd'"
+    'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd=1.1.0'"
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.6 && \
-    conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1'"
+    conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1' 'beakerx==1.2.0'"
 RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'ccalnoir==2.3' 'cuzcatlan==0.9.0' 'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'ndex2==1.2.0.*' 'plotly==2.4.1' \
     'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10'"
+
+# Ugly hack for the single-cell notebook. Remove this once that notebook is refactored.
+RUN wget -O /opt/conda/envs/python3.6/lib/python3.6/site-packages/singlecell.py https://github.com/genepattern/single_cell_clustering_notebook/raw/master/singlecell.py
 
 #############################################
 ##  $NB_USER                               ##
