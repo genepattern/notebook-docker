@@ -72,13 +72,28 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
 USER root
 
-# Install nbextensions in default Python environment
+# Install GenePattern nbextensions in default Python environment
 RUN pip install nbtools genepattern-notebook jupyter_wysiwyg
 
 # Enable the extensions
 RUN jupyter nbextension enable --py nbtools
 RUN jupyter nbextension enable --py genepattern
 RUN jupyter nbextension enable --py jupyter_wysiwyg
+RUN jupyter nbextension enable --py collapsible_headings/main
+RUN jupyter nbextension enable --py cyjs
+
+# Install the Cytoscape JS extension
+RUN mkdir /opt/conda/share/jupyter/nbextensions/cyjs
+RUN wget https://github.com/cytoscape/jupyter-cytoscape/raw/master/cyjs/static/index.js -O /opt/conda/share/jupyter/nbextensions/cyjs/index.js
+RUN wget https://github.com/cytoscape/jupyter-cytoscape/raw/master/cyjs/static/index.js -O /opt/conda/share/jupyter/nbextensions/cyjs/index.js.map
+RUN wget https://github.com/cytoscape/jupyter-cytoscape/raw/master/cyjs/static/index.js -O /opt/conda/share/jupyter/nbextensions/cyjs/extension.js
+RUN echo '{"load_extensions": {"cyjs/index": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/cyjs.json
+
+# Install the collapsible_headings extension
+RUN mkdir /opt/conda/share/jupyter/nbextensions/collapsible_headings
+RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.js -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.js
+RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.css -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.css
+RUN echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/collapsible_headings.json
 
 #############################################
 ##  $NB_USER                               ##
