@@ -79,8 +79,6 @@ RUN pip install nbtools genepattern-notebook jupyter_wysiwyg
 RUN jupyter nbextension enable --py nbtools
 RUN jupyter nbextension enable --py genepattern
 RUN jupyter nbextension enable --py jupyter_wysiwyg
-RUN jupyter nbextension enable --py collapsible_headings/main
-RUN jupyter nbextension enable --py cyjs
 
 # Install the Cytoscape JS extension
 RUN mkdir /opt/conda/share/jupyter/nbextensions/cyjs
