@@ -73,7 +73,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 USER root
 
 # Install GenePattern nbextensions in default Python environment
-RUN pip install nbtools genepattern-notebook jupyter_wysiwyg
+RUN pip install -v nbtools genepattern-notebook jupyter_wysiwyg
 
 # Enable the extensions
 RUN jupyter nbextension enable --py nbtools
