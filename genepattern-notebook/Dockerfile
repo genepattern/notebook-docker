@@ -170,3 +170,12 @@ RUN echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupy
 #############################################
 
 USER $NB_USER
+
+#############################################
+# This comment is used to force updates to  #
+# the Docker auto-build process when a new  #
+# version of the packages are released.     #
+#############################################
+
+# nbtools 0.2.3
+# genepattern-notebook 0.8.3
