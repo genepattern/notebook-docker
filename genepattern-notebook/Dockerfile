@@ -70,7 +70,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'nbtools 0.2.3, genepattern-notebook 0.8.3'
+RUN echo 'nbtools 0.2.3, genepattern-notebook 0.8.4'
 
 #############################################
 ##  ROOT                                   ##
