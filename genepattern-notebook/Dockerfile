@@ -66,6 +66,13 @@ RUN Rscript -e "install.packages('ggplot2')"
 RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
 #############################################
+##  $NB_USER                               ##
+##      Force builds with new releases     ##
+#############################################
+
+RUN echo 'nbtools 0.2.3, genepattern-notebook 0.8.4'
+
+#############################################
 ##  ROOT                                   ##
 ##      Configure nbextensions             ##
 #############################################
