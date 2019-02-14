@@ -70,7 +70,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'nbtools 0.2.3, genepattern-notebook 0.8.4'
+RUN echo 'nbtools 0.2.4, genepattern-notebook 0.8.5'
 
 #############################################
 ##  ROOT                                   ##
@@ -123,7 +123,7 @@ RUN /bin/bash -c "source activate python3.6 && \
 RUN /bin/bash -c "source activate python3.6 && \
     conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1' 'beakerx==1.2.0'"
 RUN /bin/bash -c "source activate python3.6 && \
-    pip install nbtools==0.2.4 genepattern-python genepattern-notebook jupyter_wysiwyg \
+    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'ccalnoir==2.3' 'cuzcatlan==0.9.0' 'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'ndex2==1.2.0.*' 'plotly==2.4.1' \
     'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10'"
 
@@ -152,7 +152,7 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     conda install -y -c conda-forge 'biopython' 'igraph' 'babel'"
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install nbtools==0.2.4 genepattern-python genepattern-notebook jupyter_wysiwyg \
+    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'ccalnoir==2.3' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' 'plotly==2.4.1' 'rpy2==2.8.5' \
     scanpy pysam hca louvain"
 
