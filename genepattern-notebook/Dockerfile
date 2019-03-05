@@ -71,6 +71,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 #############################################
 
 RUN echo 'nbtools 0.2.4, genepattern-notebook 0.8.5'
+RUN echo 'update singlecell.py'
 
 #############################################
 ##  ROOT                                   ##
