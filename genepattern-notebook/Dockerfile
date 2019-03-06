@@ -71,7 +71,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 #############################################
 
 RUN echo 'nbtools 0.2.4, genepattern-notebook 0.8.5'
-RUN echo 'update tornado'
+RUN echo 'install cyjs from github'
 
 #############################################
 ##  ROOT                                   ##
@@ -127,6 +127,10 @@ RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'ndex2==1.2.0.*' 'plotly==2.4.1' \
     'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
+    
+# Install cyjs from GitHub
+RUN git clone https://github.com/cytoscape/jupyter-cytoscape.git
+RUN cd jupyter-cytoscape && pip install .
 
 # Ugly hack for the single-cell notebook. Remove this once that notebook is refactored.
 RUN wget -O /opt/conda/envs/python3.6/lib/python3.6/site-packages/singlecell.py https://github.com/genepattern/single_cell_clustering_notebook/raw/master/singlecell.py
@@ -156,6 +160,10 @@ RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' 'plotly==2.4.1' 'rpy2==2.8.5' \
     scanpy pysam hca louvain tzlocal simplegeneric memory_profiler"
+    
+# Install cyjs from GitHub
+RUN git clone https://github.com/cytoscape/jupyter-cytoscape.git
+RUN cd jupyter-cytoscape && pip install .
 
 #############################################
 ##  ROOT                                   ##
