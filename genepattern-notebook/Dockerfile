@@ -163,7 +163,6 @@ RUN /bin/bash -c "source activate python3.7 && \
     scanpy pysam hca louvain tzlocal simplegeneric memory_profiler"
     
 # Install cyjs from GitHub
-RUN git clone https://github.com/cytoscape/jupyter-cytoscape.git
 RUN /bin/bash -c "source activate python3.6 && \
     cd jupyter-cytoscape && pip install ."
 
