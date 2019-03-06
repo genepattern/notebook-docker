@@ -131,7 +131,7 @@ RUN /bin/bash -c "source activate python3.6 && \
 # Install cyjs from GitHub
 RUN git clone https://github.com/cytoscape/jupyter-cytoscape.git
 RUN /bin/bash -c "source activate python3.6 && \
-    cd jupyter-cytoscape && pip install .'
+    cd jupyter-cytoscape && pip install ."
 
 # Ugly hack for the single-cell notebook. Remove this once that notebook is refactored.
 RUN wget -O /opt/conda/envs/python3.6/lib/python3.6/site-packages/singlecell.py https://github.com/genepattern/single_cell_clustering_notebook/raw/master/singlecell.py
