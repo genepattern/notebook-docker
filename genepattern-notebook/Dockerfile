@@ -32,6 +32,15 @@ RUN gpasswd -a $NB_USER docker
 RUN newgrp docker
 
 #############################################
+##  $NB_USER                               ##
+##      Enable nano and vi                 ##
+#############################################
+
+USER $NB_USER
+
+ENV TERM xterm
+
+#############################################
 ##  ROOT                                   ##
 ##      Update QT4                         ##
 #############################################
@@ -69,6 +78,8 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 ##  $NB_USER                               ##
 ##      Force builds with new releases     ##
 #############################################
+
+USER $NB_USER
 
 RUN echo 'nbtools 0.2.4, genepattern-notebook 0.8.5'
 RUN echo 'install cyjs from github'
