@@ -32,6 +32,15 @@ RUN gpasswd -a $NB_USER docker
 RUN newgrp docker
 
 #############################################
+##  $NB_USER                               ##
+##      Enable nano and vi                 ##
+#############################################
+
+USER $NB_USER
+
+ENV TERM xterm
+
+#############################################
 ##  ROOT                                   ##
 ##      Update QT4                         ##
 #############################################
@@ -66,6 +75,15 @@ RUN Rscript -e "install.packages('ggplot2')"
 RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
 #############################################
+##  $NB_USER                               ##
+##      Force builds with new releases     ##
+#############################################
+
+USER $NB_USER
+
+RUN echo 'nbtools 0.2.4, genepattern-notebook 0.8.5'
+
+#############################################
 ##  ROOT                                   ##
 ##      Configure nbextensions             ##
 #############################################
@@ -79,13 +97,6 @@ RUN pip install -v nbtools genepattern-notebook jupyter_wysiwyg
 RUN jupyter nbextension enable --py nbtools
 RUN jupyter nbextension enable --py genepattern
 RUN jupyter nbextension enable --py jupyter_wysiwyg
-
-# Install the Cytoscape JS extension
-RUN mkdir /opt/conda/share/jupyter/nbextensions/cyjs
-RUN wget https://github.com/cytoscape/jupyter-cytoscape/raw/master/cyjs/static/index.js -O /opt/conda/share/jupyter/nbextensions/cyjs/index.js
-RUN wget https://github.com/cytoscape/jupyter-cytoscape/raw/master/cyjs/static/index.js -O /opt/conda/share/jupyter/nbextensions/cyjs/index.js.map
-RUN wget https://github.com/cytoscape/jupyter-cytoscape/raw/master/cyjs/static/index.js -O /opt/conda/share/jupyter/nbextensions/cyjs/extension.js
-RUN echo '{"load_extensions": {"cyjs/index": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/cyjs.json
 
 # Install the collapsible_headings extension
 RUN mkdir /opt/conda/share/jupyter/nbextensions/collapsible_headings
@@ -107,7 +118,7 @@ RUN conda create -y --name python3.6 python=3.6 anaconda ipykernel==5.1.0
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.6 && \
-    conda install -y 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=0.23*' 'numexpr=2.6*' 'matplotlib=2.2*' 'scipy=1.1*' 'seaborn=0.9*' \
+    conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=0.23*' 'numexpr=2.6*' 'matplotlib=2.2*' 'scipy=1.1*' 'seaborn=0.9*' \
     'scikit-learn=0.19*' 'scikit-image=0.14*' 'sympy=1.1*' 'cython=0.28*' 'patsy=0.5*' 'statsmodels=0.9*' 'cloudpickle=0.5*' 'dill=0.2*' 'numba=0.38*' \
     'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd=1.1.0'"
 
@@ -117,8 +128,8 @@ RUN /bin/bash -c "source activate python3.6 && \
     conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1' 'beakerx==1.2.0'"
 RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
-    'ccalnoir==2.3' 'cuzcatlan==0.9.0' 'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'ndex2==1.2.0.*' 'plotly==2.4.1' \
-    'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10'"
+    'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'ndex2==1.2.0.*' 'plotly==2.4.1' \
+    'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
 
 # Ugly hack for the single-cell notebook. Remove this once that notebook is refactored.
 RUN wget -O /opt/conda/envs/python3.6/lib/python3.6/site-packages/singlecell.py https://github.com/genepattern/single_cell_clustering_notebook/raw/master/singlecell.py
@@ -136,7 +147,7 @@ RUN conda create -y --name python3.7 python=3.7 anaconda ipykernel==5.1.0
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.7 && \
-    conda install -y 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
+    conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
     'scikit-learn' 'scikit-image' 'sympy' 'cython' 'patsy' 'statsmodels' 'cloudpickle' 'dill' 'numba' \
     'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd'"
 
@@ -146,8 +157,8 @@ RUN /bin/bash -c "source activate python3.7 && \
     conda install -y -c conda-forge 'biopython' 'igraph' 'babel'"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
-    'ccalnoir==2.3' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' 'plotly==2.4.1' 'rpy2==2.8.5' \
-    scanpy pysam hca louvain"
+    'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' 'plotly==2.4.1' 'rpy2==2.8.5' \
+    scanpy pysam hca louvain tzlocal simplegeneric memory_profiler"
 
 #############################################
 ##  ROOT                                   ##
