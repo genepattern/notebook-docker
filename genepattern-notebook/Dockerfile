@@ -32,15 +32,6 @@ RUN gpasswd -a $NB_USER docker
 RUN newgrp docker
 
 #############################################
-##  $NB_USER                               ##
-##      Enable nano and vi                 ##
-#############################################
-
-USER $NB_USER
-
-ENV TERM xterm
-
-#############################################
 ##  ROOT                                   ##
 ##      Update QT4                         ##
 #############################################
@@ -97,6 +88,19 @@ RUN pip install -v nbtools genepattern-notebook jupyter_wysiwyg
 RUN jupyter nbextension enable --py nbtools
 RUN jupyter nbextension enable --py genepattern
 RUN jupyter nbextension enable --py jupyter_wysiwyg
+
+# Enable Notebook Repository frontend
+RUN git clone https://github.com/genepattern/notebook-repository-frontend.git
+RUN cd notebook-repository-frontend && jupyter nbextension install repo
+RUN cd notebook-repository-frontend && jupyter nbextension enable repo/js/main
+RUN cd notebook-repository-frontend && jupyter nbextension enable --section=tree repo/js/main
+RUN rm -r notebook-repository-frontend
+
+# Enable Notebook Repository hints
+RUN git clone https://github.com/genepattern/notebook-tour.git
+RUN cd notebook-tour && jupyter nbextension install hints
+RUN cd notebook-tour && jupyter nbextension enable --section=tree hints/js/main
+RUN rm -r notebook-tour
 
 # Install the collapsible_headings extension
 RUN mkdir /opt/conda/share/jupyter/nbextensions/collapsible_headings
@@ -177,7 +181,9 @@ RUN echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupy
 
 #############################################
 ##  $NB_USER                               ##
-##      Switch back to the user account    ##
+##      Enable nano and vi                 ##
 #############################################
 
 USER $NB_USER
+
+ENV TERM xterm
