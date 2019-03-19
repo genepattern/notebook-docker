@@ -75,6 +75,23 @@ USER $NB_USER
 RUN echo 'nbtools 0.2.4, genepattern-notebook 0.8.5'
 
 #############################################
+##  $NB_USER                               ##
+##      Update the theme                   ##
+#############################################
+
+USER $NB_USER
+
+# Copy the logo
+COPY ./logo.png /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/logo.png
+
+# Copy the favicon
+COPY ./favicon.ico /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/favicon.ico
+
+# Install the custom theme
+COPY ./custom.css /opt/conda/lib/python3.6/site-packages/notebook/static/custom/custom.css
+COPY ./custom.js /opt/conda/lib/python3.6/site-packages/notebook/static/custom/custom.js
+
+#############################################
 ##  ROOT                                   ##
 ##      Configure nbextensions             ##
 #############################################
