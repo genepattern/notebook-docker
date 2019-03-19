@@ -9,7 +9,7 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
 
     // Add username to the logout button
     const username =  (""+ window.location).split('/')[4];
-    $('#logout').html( "Logout " + username);
+    if (username) $('#logout').html( "Logout " + username);
 
 	/**
 	 * Attach the loading screen
