@@ -6,13 +6,48 @@ FROM jupyterhub/jupyterhub:0.9.4
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
+RUN echo 'test 14'
+
 #############################################
 ##  ROOT                                   ##
 ##      Add the repository webservice      ##
 #############################################
 
 RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebook-repository/
-# TODO: Configure the service
+
+#############################################
+##  ROOT                                   ##
+##      Create the repository environment  ##
+#############################################
+
+USER $NB_USER
+
+# Create the Python 3.6 environment
+RUN /opt/conda/bin/conda update -y conda
+RUN /opt/conda/bin/conda create -y --name repository python=3.6 pip
+
+RUN /bin/bash -c "source activate repository && \
+    pip install Django==1.10 \
+                markdown==2.6.6 \
+                djangorestframework==3.4.4 \
+                django-filter==0.14.0 \
+                django-crispy-forms==1.6.0 \
+                django-cors-middleware==1.3.1 \
+                pyppeteer==0.0.25 \
+                requests==2.21.0 \
+                jupyterhub==0.9.4"
+
+#############################################
+##  ROOT                                   ##
+##      Configure the repository           ##
+#############################################
+
+RUN /bin/bash -c "source activate repository && \
+    /srv/notebook-repository/manage.py makemigrations"
+RUN /bin/bash -c "source activate repository && \
+    /srv/notebook-repository/manage.py migrate --run-syncdb"
+
+# TODO: Configure the service in settings.py
 
 #############################################
 ##  ROOT                                   ##
@@ -28,12 +63,17 @@ RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/
 #############################################
 
 COPY ./jupyterhub_config.py /srv/jupyterhub/
-# TODO: Finish connfig, including services API
-# TODO: Also copy lines from prod repo to make sure all bases covered
+# TODO: Finish DockerSpawner volume config
 
 #############################################
 ##  ROOT                                   ##
 ##      Add the GenePattern theme          ##
 #############################################
 
-# TODO
+# Add the theme assets to JupyterHub
+RUN mv /srv/notebook-repository/theme/images/* /opt/conda/share/jupyterhub/static/images/
+RUN mv /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/css/
+
+# Import the theme
+RUN echo '@import url("/hub/static/css/genepattern.css");' >> /opt/conda/share/jupyterhub/static/css/style.min.css
+# TODO: Finish theme and fix import
