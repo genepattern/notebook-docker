@@ -178,7 +178,7 @@ RUN /bin/bash -c "source activate python3.7 && \
     conda install -y -c conda-forge 'biopython' 'igraph' 'babel'"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
-    'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' 'plotly==2.4.1' 'rpy2==2.8.5' \
+    'ccalnoir==2.6' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' \
     scanpy pysam hca louvain tzlocal simplegeneric memory_profiler"
 
 #############################################
