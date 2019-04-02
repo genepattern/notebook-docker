@@ -102,21 +102,21 @@ USER root
 RUN pip install -v nbtools genepattern-notebook jupyter_wysiwyg
 
 # Enable the extensions
-RUN jupyter nbextension enable --py nbtools
-RUN jupyter nbextension enable --py genepattern
-RUN jupyter nbextension enable --py jupyter_wysiwyg
+RUN jupyter nbextension enable --sys-prefix --py nbtools
+RUN jupyter nbextension enable --sys-prefix --py genepattern
+RUN jupyter nbextension enable --sys-prefix --py jupyter_wysiwyg
 
 # Enable Notebook Repository frontend
 RUN git clone https://github.com/genepattern/notebook-repository-frontend.git
 RUN cd notebook-repository-frontend && jupyter nbextension install repo
-RUN cd notebook-repository-frontend && jupyter nbextension enable repo/js/main
-RUN cd notebook-repository-frontend && jupyter nbextension enable --section=tree repo/js/main
+RUN cd notebook-repository-frontend && jupyter nbextension enable --sys-prefix repo/js/main
+RUN cd notebook-repository-frontend && jupyter nbextension enable --sys-prefix --section=tree repo/js/main
 RUN rm -r notebook-repository-frontend
 
 # Enable Notebook Repository hints
 RUN git clone https://github.com/genepattern/notebook-tour.git
 RUN cd notebook-tour && jupyter nbextension install hints
-RUN cd notebook-tour && jupyter nbextension enable --section=tree hints/js/main
+RUN cd notebook-tour && jupyter nbextension enable --sys-prefix --section=tree hints/js/main
 RUN rm -r notebook-tour
 
 # Install the collapsible_headings extension
@@ -127,13 +127,13 @@ RUN echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda
 
 # Install the igv.js extension
 RUN pip install -v igv==0.9.5
-RUN jupyter serverextension enable --py igv
-RUN jupyter nbextension install --py igv
-RUN jupyter nbextension enable --py igv
+RUN jupyter serverextension enable --sys-prefix --py igv
+RUN jupyter nbextension install --sys-prefix --py igv
+RUN jupyter nbextension enable --sys-prefix --py igv
 
 # Install the cytoscape extension
 RUN pip install -v cyjupyter==0.2.0
-RUN jupyter nbextension enable --py cyjupyter
+RUN jupyter nbextension enable --sys-prefix --py cyjupyter
 
 #############################################
 ##  $NB_USER                               ##
@@ -192,7 +192,7 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg"
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install 'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
+    pip install 'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
 RUN /bin/bash -c "source activate python3.7 && \
     pip install 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' "
 RUN /bin/bash -c "source activate python3.7 && \
