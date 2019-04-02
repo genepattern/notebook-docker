@@ -125,6 +125,16 @@ RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/mas
 RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.css -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.css
 RUN echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/collapsible_headings.json
 
+# Install the igv.js extension
+RUN pip install -v igv==0.9.5
+RUN jupyter serverextension enable --py igv
+RUN jupyter nbextension install --py igv
+RUN jupyter nbextension enable --py igv
+
+# Install the cytoscape extension
+RUN pip install -v cyjupyter==0.2.0
+RUN jupyter nbextension enable --py cyjupyter
+
 #############################################
 ##  $NB_USER                               ##
 ##      Create the Python 3.6 environment  ##
@@ -149,7 +159,8 @@ RUN /bin/bash -c "source activate python3.6 && \
     conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1' 'beakerx==1.2.0'"
 RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
-    'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'ndex2==1.2.0.*' 'plotly==2.4.1' \
+    'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' \
+    'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'plotly==2.4.1' \
     'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
 
 # Ugly hack for the single-cell notebook. Remove this once that notebook is refactored.
@@ -170,16 +181,24 @@ RUN conda create -y --name python3.7 python=3.7 anaconda ipykernel==5.1.0
 RUN /bin/bash -c "source activate python3.7 && \
     conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
     'scikit-learn' 'scikit-image' 'sympy' 'cython' 'patsy' 'statsmodels' 'cloudpickle' 'dill' 'numba' \
-    'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd'"
+    'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd' 'simplegeneric'"
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.7 && \
-    conda install -y -c conda-forge 'biopython' 'igraph' 'babel'"
+    conda install -y -c conda-forge 'biopython' 'igraph' 'babel' 'louvain' 'tzlocal' "
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
-    'ccalnoir==2.6' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' \
-    scanpy pysam hca louvain tzlocal simplegeneric memory_profiler"
+    conda install -y -c bioconda 'pysam'"
+RUN /bin/bash -c "source activate python3.7 && \
+    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg"
+RUN /bin/bash -c "source activate python3.7 && \
+    pip install 'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
+RUN /bin/bash -c "source activate python3.7 && \
+    pip install 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' "
+RUN /bin/bash -c "source activate python3.7 && \
+    pip install scanpy memory_profiler"
+RUN /bin/bash -c "source activate python3.7 && \
+    pip install -e git://github.com/LankyCyril/genefab.git#egg=genefab"
 
 #############################################
 ##  ROOT                                   ##
@@ -195,6 +214,16 @@ RUN /bin/bash -c "source activate python3.7 && python -m ipykernel install --nam
 # Remove the default Python kernel
 RUN rm -r /opt/conda/share/jupyter/kernels/python3
 RUN echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
+
+#############################################
+##  root                                   ##
+##      Clean up build environment         ##
+#############################################
+
+USER root
+
+RUN rm -r work
+RUN rm -r src
 
 #############################################
 ##  $NB_USER                               ##
