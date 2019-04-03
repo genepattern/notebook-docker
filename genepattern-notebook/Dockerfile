@@ -194,11 +194,11 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     pip install 'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' "
+    pip install 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1'"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install scanpy memory_profiler"
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install -e git://github.com/LankyCyril/genefab.git#egg=genefab"
+    pip install -e git://github.com/LankyCyril/genefab.git#egg=genefab --src=/opt/conda/envs/python3.7/lib/python3.7/site-packages/"
 
 #############################################
 ##  ROOT                                   ##
@@ -223,7 +223,6 @@ RUN echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupy
 USER root
 
 RUN rm -r work
-RUN rm -r src
 
 #############################################
 ##  $NB_USER                               ##
