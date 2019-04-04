@@ -6,21 +6,23 @@ FROM jupyterhub/jupyterhub:0.9.4
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
-RUN echo 'test 14'
-
 #############################################
-##  ROOT                                   ##
 ##      Add the repository webservice      ##
 #############################################
+
+RUN echo 'test 33'
 
 RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebook-repository/
 
 #############################################
-##  ROOT                                   ##
-##      Create the repository environment  ##
+##      Create the data volume             ##
 #############################################
 
-USER $NB_USER
+RUN mkdir /data
+
+#############################################
+##      Create the repository environment  ##
+#############################################
 
 # Create the Python 3.6 environment
 RUN /opt/conda/bin/conda update -y conda
@@ -38,9 +40,15 @@ RUN /bin/bash -c "source activate repository && \
                 jupyterhub==0.9.4"
 
 #############################################
-##  ROOT                                   ##
 ##      Configure the repository           ##
 #############################################
+
+COPY ./settings.py /srv/notebook-repository/nbrepo/
+
+RUN mkdir /data/repository
+RUN mkdir /data/users
+RUN mkdir /data/shared
+RUN mkdir /data/auth
 
 RUN /bin/bash -c "source activate repository && \
     /srv/notebook-repository/manage.py makemigrations"
@@ -50,7 +58,6 @@ RUN /bin/bash -c "source activate repository && \
 # TODO: Configure the service in settings.py
 
 #############################################
-##  ROOT                                   ##
 ##      Install Authenticator & Spawner    ##
 #############################################
 
@@ -58,7 +65,6 @@ RUN /opt/conda/bin/conda install --yes -c conda-forge dockerspawner==0.11.0
 RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/python3.6/site-packages/
 
 #############################################
-##  ROOT                                   ##
 ##      Add the jupyterhub_config file     ##
 #############################################
 
@@ -66,7 +72,6 @@ COPY ./jupyterhub_config.py /srv/jupyterhub/
 # TODO: Finish DockerSpawner volume config
 
 #############################################
-##  ROOT                                   ##
 ##      Add the GenePattern theme          ##
 #############################################
 
@@ -77,3 +82,10 @@ RUN mv /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/c
 # Import the theme
 RUN echo '@import url("/hub/static/css/genepattern.css");' >> /opt/conda/share/jupyterhub/static/css/style.min.css
 # TODO: Finish theme and fix import
+
+#############################################
+##      Start JupyterHub                   ##
+#############################################
+
+# CMD ["/bin/sh", "-c", "jupyterhub >> /data/jupyterhub.log"]
+# CMD jupyterhub

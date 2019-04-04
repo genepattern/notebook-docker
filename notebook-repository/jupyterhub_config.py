@@ -1,3 +1,7 @@
+import os
+
+c = get_config()
+
 # Might be necessary for use with Docker Swarm
 # import os
 # os.environ["DOCKER_HOST"] = ":4000"
@@ -19,17 +23,18 @@ c.Authenticator.admin_users = {'admin'}
 # Configure DockerSpawner
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 
-c.DockerSpawner.container_ip = '0.0.0.0'
-c.DockerSpawner.container_image = 'genepattern/genepattern-notebook:develop'
+c.DockerSpawner.host_ip = '0.0.0.0'
+c.DockerSpawner.image = 'genepattern/genepattern-notebook:develop'
 c.DockerSpawner.network_name = 'repo'
 # c.DockerSpawner.extra_host_config = { 'network_mode': 'repo' }
 c.DockerSpawner.remove_containers = True
 c.DockerSpawner.debug = True
 
 # Mount the user's directory in the singleuser containers
-# c.DockerSpawner.volumes = {
-#     '/srv/users/{username}': '/home/jovyan',
-# }
+if 'DATA_DIR' in os.environ:
+    c.DockerSpawner.volumes = {
+        os.environ['DATA_DIR'] + '/users/{username}': '/home/jovyan',    # Mount users directory
+    }
 
 # Services API configuration
 c.JupyterHub.services = [
@@ -46,6 +51,9 @@ c.JupyterHub.services = [
         'command': ['python', '/srv/notebook-repository/scripts/cull-idle.py', '--timeout=3600']
     }
 ]
+
+# Write to the log file
+c.JupyterHub.extra_log_file = '/data/jupyterhub.log'
 
 # Number of days for a login cookie to be valid. Default is two weeks.
 c.JupyterHub.cookie_max_age_days = 1
