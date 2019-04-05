@@ -29,6 +29,6 @@ the container will assume that it lives at `/data` on the host file system. See 
 ## Configuring the Notebook Repository
 
 The Notebook Repository can be configured by tweaking the `jupyterhub_config.py` and `settings.py` files
-in the ``/data` directory. The former file configured JupyterHub, while the later file configures the
+in the `/data` directory. The former file configured JupyterHub, while the later file configures the
 notebook repository's publishing and sharing webservice. At very minimum, we recommend that you change the
 secret key in `settings.py` from its default to a value of your choosing.
