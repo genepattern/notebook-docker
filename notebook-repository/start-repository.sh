@@ -40,13 +40,9 @@ export DB_EXISTS=false
 export CONFIG_EXISTS=false
 export SETTINGS_EXISTS=false
 
-[[ -f $DATA_DIR/db.sqlite3 ]] || export DB_EXISTS=true
-[[ -f $DATA_DIR/jupyterhub_config.py ]] || export CONFIG_EXISTS=true
-[[ -f $DATA_DIR/settings.py ]] || export SETTINGS_EXISTS=true
-
-echo $DB_EXISTS
-echo $CONFIG_EXISTS
-echo $SETTINGS_EXISTS
+[[ -f $DATA_DIR/db.sqlite3 ]] && export DB_EXISTS=true
+[[ -f $DATA_DIR/jupyterhub_config.py ]] && export CONFIG_EXISTS=true
+[[ -f $DATA_DIR/settings.py ]] && export SETTINGS_EXISTS=true
 
 if ! $DB_EXISTS || ! $CONFIG_EXISTS || ! $SETTINGS_EXISTS
 then

@@ -35,8 +35,6 @@ RUN /bin/bash -c "source activate repository && \
 ##      Add the repository webservice      ##
 #############################################
 
-RUN echo 'test 35'
-
 RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebook-repository/
 
 #############################################
@@ -79,10 +77,11 @@ COPY ./jupyterhub_config.py /data/
 # Add the theme assets to JupyterHub
 RUN mv /srv/notebook-repository/theme/images/* /opt/conda/share/jupyterhub/static/images/
 RUN mv /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/css/
+RUN mv /srv/notebook-repository/theme/templates/* /opt/conda/share/jupyterhub/templates/
 
 # Import the theme
-RUN echo '@import url("/hub/static/css/genepattern.css");' >> /opt/conda/share/jupyterhub/static/css/style.min.css
-# TODO: Finish theme and fix import
+RUN { echo '@import url("/hub/static/css/genepattern.css");'; cat /opt/conda/share/jupyterhub/static/css/style.min.css; } \
+    > /tmp/style.min.css && mv /tmp/style.min.css /opt/conda/share/jupyterhub/static/css/style.min.css
 
 #############################################
 ##      Start JupyterHub                   ##
