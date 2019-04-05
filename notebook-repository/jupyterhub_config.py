@@ -24,7 +24,7 @@ c.Authenticator.admin_users = {'admin'}
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 
 c.DockerSpawner.host_ip = '0.0.0.0'
-c.DockerSpawner.image = 'genepattern/genepattern-notebook:develop'
+c.DockerSpawner.image = 'genepattern/genepattern-notebook'
 c.DockerSpawner.network_name = 'repo'
 # c.DockerSpawner.extra_host_config = { 'network_mode': 'repo' }
 c.DockerSpawner.remove_containers = True
