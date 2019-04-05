@@ -7,14 +7,6 @@ FROM jupyterhub/jupyterhub:0.9.4
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
 #############################################
-##      Add the repository webservice      ##
-#############################################
-
-RUN echo 'test 33'
-
-RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebook-repository/
-
-#############################################
 ##      Create the data volume             ##
 #############################################
 
@@ -40,11 +32,23 @@ RUN /bin/bash -c "source activate repository && \
                 jupyterhub==0.9.4"
 
 #############################################
+##      Add the repository webservice      ##
+#############################################
+
+RUN echo 'test 35'
+
+RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebook-repository/
+
+#############################################
 ##      Configure the repository           ##
 #############################################
 
-COPY ./settings.py /srv/notebook-repository/nbrepo/
+# Add the repository webservice settings
+COPY ./settings.py /data
+RUN rm /srv/notebook-repository/nbrepo/settings.py
+RUN ln -s /data/settings.py /srv/notebook-repository/nbrepo/settings.py
 
+# Create subdirectories in data directory
 RUN mkdir /data/repository
 RUN mkdir /data/users
 RUN mkdir /data/shared
@@ -54,8 +58,6 @@ RUN /bin/bash -c "source activate repository && \
     /srv/notebook-repository/manage.py makemigrations"
 RUN /bin/bash -c "source activate repository && \
     /srv/notebook-repository/manage.py migrate --run-syncdb"
-
-# TODO: Configure the service in settings.py
 
 #############################################
 ##      Install Authenticator & Spawner    ##
@@ -68,8 +70,7 @@ RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/
 ##      Add the jupyterhub_config file     ##
 #############################################
 
-COPY ./jupyterhub_config.py /srv/jupyterhub/
-# TODO: Finish DockerSpawner volume config
+COPY ./jupyterhub_config.py /data/
 
 #############################################
 ##      Add the GenePattern theme          ##
@@ -87,5 +88,4 @@ RUN echo '@import url("/hub/static/css/genepattern.css");' >> /opt/conda/share/j
 ##      Start JupyterHub                   ##
 #############################################
 
-# CMD ["/bin/sh", "-c", "jupyterhub >> /data/jupyterhub.log"]
-# CMD jupyterhub
+CMD ["jupyterhub", "-f", "/data/jupyterhub_config.py"]
