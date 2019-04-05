@@ -46,7 +46,6 @@ export SETTINGS_EXISTS=false
 
 if ! $DB_EXISTS || ! $CONFIG_EXISTS || ! $SETTINGS_EXISTS
 then
-    echo "INSIDE THE BIG IF"
     docker run --rm --name=copy_data genepattern/notebook-repository &
     sleep 10
 
