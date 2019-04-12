@@ -126,7 +126,7 @@ RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/mas
 RUN echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/collapsible_headings.json
 
 # Install the igv.js extension
-RUN pip install -v igv==0.9.5
+RUN pip install -v igv-jupyter==0.9.7
 RUN jupyter serverextension enable --sys-prefix --py igv
 RUN jupyter nbextension install --sys-prefix --py igv
 RUN jupyter nbextension enable --sys-prefix --py igv
@@ -159,7 +159,7 @@ RUN /bin/bash -c "source activate python3.6 && \
     conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1' 'beakerx==1.2.0'"
 RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
-    'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' \
+    'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' \
     'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'plotly==2.4.1' \
     'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
 
@@ -192,7 +192,7 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg"
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install 'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
+    pip install 'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
 RUN /bin/bash -c "source activate python3.7 && \
     pip install 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1'"
 RUN /bin/bash -c "source activate python3.7 && \
