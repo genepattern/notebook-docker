@@ -26,6 +26,7 @@ SECRET_KEY = '_2+ia3&r#rz)h^t*18ohzb6j%#cakd0hr$wx--knf#j$nxg_h2'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+SITE_ID = 1
 
 
 # Application definition
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.redirects',
 
     # Django Rest Framework
     'crispy_forms',
@@ -57,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
 ]
 
 ROOT_URLCONF = 'nbrepo.urls'
@@ -162,6 +166,8 @@ BASE_GENEPATTERN_URL = 'https://cloud.genepattern.org/gp'
 BASE_REPO_PATH = '/data/repository'
 BASE_USER_PATH = '/data/users'
 BASE_SHARE_PATH = '/data/shared'
-BASE_AUTH_PATH = '/data/auth'
 CAN_SET_PROTECTED_TAGS = ['admin', 'tabor', 'ted']
 JUPYTERHUB = True
+BASE_HUB_URL = "http://localhost"
+SCREENSHOT_USER = "xxx"
+SCREENSHOT_PASSWORD = "xxx"
