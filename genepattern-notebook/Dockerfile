@@ -54,7 +54,7 @@ RUN sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/" >>
 RUN gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
 RUN gpg -a --export E084DAB9 | sudo apt-key add -
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
-RUN apt-get install r-base r-base-dev -y
+RUN apt-get install -y r-base r-base-dev libssl-dev libcurl4-openssl-dev
 RUN pip install rpy2==2.8.5 --ignore-installed
 RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
 RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/startup/mymagics.ipy
@@ -62,6 +62,9 @@ RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
 
 # Install R libraries
 RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > /usr/lib/R/.Rprofile
+RUN Rscript -e "install.packages('openssl')"
+RUN Rscript -e "install.packages('curl')"
+RUN Rscript -e "install.packages('httr')"
 RUN Rscript -e "install.packages('ggplot2')"
 RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
@@ -72,7 +75,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
 USER $NB_USER
 
-RUN echo 'nbtools 0.2.4, genepattern-notebook 0.8.5'
+RUN echo 'nbtools 0.2.6, genepattern-notebook 0.8.6, toc update'
 
 #############################################
 ##  $NB_USER                               ##
@@ -125,8 +128,16 @@ RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/mas
 RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.css -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.css
 RUN echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/collapsible_headings.json
 
+# Install the toc2 extension
+RUN mkdir /opt/conda/share/jupyter/nbextensions/toc2
+RUN wget https://raw.githubusercontent.com/ipython-contrib/jupyter_contrib_nbextensions/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/main.js -O /opt/conda/share/jupyter/nbextensions/toc2/main.js
+RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/main.css -O /opt/conda/share/jupyter/nbextensions/toc2/main.css
+RUN wget https://raw.githubusercontent.com/ipython-contrib/jupyter_contrib_nbextensions/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/toc2.js -O /opt/conda/share/jupyter/nbextensions/toc2/toc2.js
+RUN sed -i "s/number_sections: true/number_sections: false/" /opt/conda/share/jupyter/nbextensions/toc2/toc2.js
+RUN echo '{"load_extensions": {"toc2/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/toc2.json
+
 # Install the igv.js extension
-RUN pip install -v igv==0.9.5
+RUN pip install -v igv-jupyter==0.9.7
 RUN jupyter serverextension enable --sys-prefix --py igv
 RUN jupyter nbextension install --sys-prefix --py igv
 RUN jupyter nbextension enable --sys-prefix --py igv
@@ -159,7 +170,7 @@ RUN /bin/bash -c "source activate python3.6 && \
     conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1' 'beakerx==1.2.0'"
 RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
-    'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' \
+    'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' \
     'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'plotly==2.4.1' \
     'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
 
@@ -192,7 +203,7 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg"
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install 'igv==0.9.5' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
+    pip install 'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
 RUN /bin/bash -c "source activate python3.7 && \
     pip install 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1'"
 RUN /bin/bash -c "source activate python3.7 && \
