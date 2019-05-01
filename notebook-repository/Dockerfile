@@ -44,7 +44,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Add the repository webservice      ##
 #############################################
 
-RUN echo 'build 5'
+RUN echo 'build 8'
 RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebook-repository/
 
 #############################################
@@ -66,6 +66,8 @@ RUN /bin/bash -c "source activate repository && \
     /srv/notebook-repository/manage.py makemigrations"
 RUN /bin/bash -c "source activate repository && \
     /srv/notebook-repository/manage.py migrate --run-syncdb"
+RUN /bin/bash -c "source activate repository && \
+    /srv/notebook-repository/manage.py collectstatic --noinput"
 
 #############################################
 ##      Install Authenticator & Spawner    ##
