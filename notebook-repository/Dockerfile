@@ -13,7 +13,8 @@ MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 RUN apt-get update && apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 \
     libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 \
     libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 \
-    libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget nano
+    libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget nano docker.io
+RUN pip install awscli
 
 #############################################
 ##      Create the data volume             ##
@@ -44,7 +45,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Add the repository webservice      ##
 #############################################
 
-RUN echo 'build 8'
+RUN echo 'build 9'
 RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebook-repository/
 
 #############################################
@@ -60,7 +61,7 @@ RUN ln -s /data/settings.py /srv/notebook-repository/nbrepo/settings.py
 RUN mkdir /data/repository
 RUN mkdir /data/users
 RUN mkdir /data/shared
-RUN mkdir /data/auth
+RUN mkdir /data/defaults
 
 RUN /bin/bash -c "source activate repository && \
     /srv/notebook-repository/manage.py makemigrations"
@@ -74,6 +75,7 @@ RUN /bin/bash -c "source activate repository && \
 #############################################
 
 RUN /opt/conda/bin/conda install --yes -c conda-forge dockerspawner==0.11.0
+RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.6/site-packages/nbrepo
 RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/python3.6/site-packages/
 
 #############################################

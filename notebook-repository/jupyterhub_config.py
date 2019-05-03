@@ -52,6 +52,9 @@ c.JupyterHub.services = [
     }
 ]
 
+# Connect to the database in /data
+c.JupyterHub.db_url = '/data/jupyterhub.sqlite'
+
 # Write to the log file
 c.JupyterHub.extra_log_file = '/data/jupyterhub.log'
 

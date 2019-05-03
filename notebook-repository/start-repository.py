@@ -38,7 +38,7 @@ if not os.path.isdir(args.data):
     sys.exit(f'{args.data} is not a directory')
 
 # Check if subdirectories exist and create lazily if needed
-required_subdirs = ['repository', 'users', 'shared']
+required_subdirs = ['repository', 'users', 'shared', 'defaults']
 for subdir in required_subdirs:
     subdir_path = os.path.join(args.data, subdir)
     if not os.path.exists(subdir_path):
@@ -83,6 +83,6 @@ if not db_exists or not config_exists or not settings_exists:
 ##########################################
 
 try:
-    subprocess.run(f'docker run --rm --net={args.network} --name=notebook_repository -e DATA_DIR={args.data} -p {args.port}:80 -v {args.data}:/data -v /var/run/docker.sock:/var/run/docker.sock genepattern/notebook-repository'.split())
+    subprocess.Popen(f'docker run --rm --net={args.network} --name=notebook_repository -e DATA_DIR={args.data} -p {args.port}:80 -v {args.data}:/data -v /var/run/docker.sock:/var/run/docker.sock genepattern/notebook-repository'.split())
 except KeyboardInterrupt:
     print('Shutting down Notebook Repository')
