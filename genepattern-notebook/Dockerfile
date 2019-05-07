@@ -54,7 +54,7 @@ RUN sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/" >>
 RUN gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
 RUN gpg -a --export E084DAB9 | sudo apt-key add -
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
-RUN apt-get install r-base r-base-dev -y
+RUN apt-get install -y r-base r-base-dev libssl-dev libcurl4-openssl-dev
 RUN pip install rpy2==2.8.5 --ignore-installed
 RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
 RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/startup/mymagics.ipy
@@ -62,6 +62,9 @@ RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
 
 # Install R libraries
 RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > /usr/lib/R/.Rprofile
+RUN Rscript -e "install.packages('openssl')"
+RUN Rscript -e "install.packages('curl')"
+RUN Rscript -e "install.packages('httr')"
 RUN Rscript -e "install.packages('ggplot2')"
 RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
@@ -72,7 +75,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
 USER $NB_USER
 
-RUN echo 'nbtools 0.2.6, genepattern-notebook 0.8.6, preview update'
+RUN echo 'nbtools 0.2.7, genepattern-notebook 0.8.6'
 
 #############################################
 ##  $NB_USER                               ##
@@ -124,6 +127,15 @@ RUN mkdir /opt/conda/share/jupyter/nbextensions/collapsible_headings
 RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.js -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.js
 RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.css -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.css
 RUN echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/collapsible_headings.json
+
+# Install the toc2 extension
+RUN mkdir /opt/conda/share/jupyter/nbextensions/toc2
+RUN wget https://raw.githubusercontent.com/ipython-contrib/jupyter_contrib_nbextensions/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/main.js -O /opt/conda/share/jupyter/nbextensions/toc2/main.js
+RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/main.css -O /opt/conda/share/jupyter/nbextensions/toc2/main.css
+RUN wget https://raw.githubusercontent.com/ipython-contrib/jupyter_contrib_nbextensions/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/toc2.js -O /opt/conda/share/jupyter/nbextensions/toc2/toc2.js
+RUN sed -i "s/number_sections: true/number_sections: false/" /opt/conda/share/jupyter/nbextensions/toc2/toc2.js
+RUN sed -i "s/moveMenuLeft: true/moveMenuLeft: false/" /opt/conda/share/jupyter/nbextensions/toc2/toc2.js
+RUN echo '{"load_extensions": {"toc2/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/toc2.json
 
 # Install the igv.js extension
 RUN pip install -v igv-jupyter==0.9.7

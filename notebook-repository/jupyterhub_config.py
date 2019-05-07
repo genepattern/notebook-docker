@@ -2,19 +2,12 @@ import os
 
 c = get_config()
 
-# Might be necessary for use with Docker Swarm
-# import os
-# os.environ["DOCKER_HOST"] = ":4000"
-
 #  This is the address on which the proxy will bind. Sets protocol, ip, base_url
 c.JupyterHub.bind_url = 'http://:80'
 
 # Listen on all interfaces
 c.JupyterHub.hub_ip = '0.0.0.0'
-
-# from IPython.utils.localinterfaces import public_ips
-# print(public_ips())
-# c.JupyterHub.hub_ip = public_ips()[0]
+c.JupyterHub.hub_connect_ip = 'notebook_repository'
 
 # Configure the GenePattern Authenticator
 c.JupyterHub.authenticator_class = 'gpauthenticator.GenePatternAuthenticator'
@@ -24,16 +17,16 @@ c.Authenticator.admin_users = {'admin'}
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 
 c.DockerSpawner.host_ip = '0.0.0.0'
-c.DockerSpawner.image = 'genepattern/genepattern-notebook:develop'
+c.DockerSpawner.image = 'genepattern/genepattern-notebook'
 c.DockerSpawner.network_name = 'repo'
-# c.DockerSpawner.extra_host_config = { 'network_mode': 'repo' }
+c.DockerSpawner.extra_host_config = { 'network_mode': 'repo' }
 c.DockerSpawner.remove_containers = True
 c.DockerSpawner.debug = True
 
 # Mount the user's directory in the singleuser containers
 if 'DATA_DIR' in os.environ:
     c.DockerSpawner.volumes = {
-        os.environ['DATA_DIR'] + '/users/{username}': '/home/jovyan',    # Mount users directory
+        os.environ['DATA_DIR'] + '/users/{raw_username}': '/home/jovyan',    # Mount users directory
     }
 
 # Services API configuration
@@ -51,6 +44,9 @@ c.JupyterHub.services = [
         'command': ['python', '/srv/notebook-repository/scripts/cull-idle.py', '--timeout=3600']
     }
 ]
+
+# Connect to the database in /data
+c.JupyterHub.db_url = '/data/jupyterhub.sqlite'
 
 # Write to the log file
 c.JupyterHub.extra_log_file = '/data/jupyterhub.log'
