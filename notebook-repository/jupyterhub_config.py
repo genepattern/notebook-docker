@@ -2,20 +2,12 @@ import os
 
 c = get_config()
 
-# Might be necessary for use with Docker Swarm
-# import os
-# os.environ["DOCKER_HOST"] = ":4000"
-
 #  This is the address on which the proxy will bind. Sets protocol, ip, base_url
 c.JupyterHub.bind_url = 'http://:80'
 
 # Listen on all interfaces
 c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.hub_connect_ip = 'notebook_repository'
-
-# from IPython.utils.localinterfaces import public_ips
-# print(public_ips())
-# c.JupyterHub.hub_ip = public_ips()[0]
 
 # Configure the GenePattern Authenticator
 c.JupyterHub.authenticator_class = 'gpauthenticator.GenePatternAuthenticator'
