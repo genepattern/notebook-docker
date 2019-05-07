@@ -6,6 +6,13 @@ import argparse
 import subprocess
 
 ##########################################
+# Get the user's home directory          #
+##########################################
+
+home_dir = os.path.expanduser('~')
+aws_dir = os.path.join(home_dir, '.aws')
+
+##########################################
 # Get the arguments passed to the script #
 ##########################################
 
@@ -14,6 +21,7 @@ parser = argparse.ArgumentParser(description='Start the Docker container for the
 parser.add_argument('-d', '--data', type=str, default='/data', help='Set the data directory to be mounted in the container')
 parser.add_argument('-p', '--port', type=int, default=80, help='Set the port the repository will be available at')
 parser.add_argument('-n', '--network', type=str, default='repo', help='The name of the Docker network to run on')
+parser.add_argument('-a', '--aws', type=str, default=aws_dir, help='The location of the your AWS credentials (~/.aws)')
 
 # Parse the arguments
 args = parser.parse_args()
@@ -25,7 +33,7 @@ args = parser.parse_args()
 network_summary = subprocess.run(f'docker network inspect {args.network}'.split(), stdout=subprocess.PIPE).stdout.decode('utf-8')
 network_exists = False if network_summary == '[]\n' else True
 if not network_exists:
-    subprocess.run(f'docker network create {args.network}'.split())
+    subprocess.run(f'docker network create --driver overlay --attachable {args.network}'.split())
 
 ##########################################
 # Set up the data directory, if needed   #
@@ -83,6 +91,6 @@ if not db_exists or not config_exists or not settings_exists:
 ##########################################
 
 try:
-    subprocess.Popen(f'docker run --rm --net={args.network} --name=notebook_repository -e DATA_DIR={args.data} -p {args.port}:80 -v {args.data}:/data -v /var/run/docker.sock:/var/run/docker.sock genepattern/notebook-repository'.split())
+    subprocess.Popen(f'docker run --rm --net={args.network} --name=notebook_repository -e DATA_DIR={args.data} -p {args.port}:80 -v {args.data}:/data -v {args.aws}:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock genepattern/notebook-repository'.split())
 except KeyboardInterrupt:
     print('Shutting down Notebook Repository')

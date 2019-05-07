@@ -45,7 +45,6 @@ RUN /bin/bash -c "source activate repository && \
 ##      Add the repository webservice      ##
 #############################################
 
-RUN echo 'build 9'
 RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebook-repository/
 
 #############################################
@@ -74,7 +73,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Install Authenticator & Spawner    ##
 #############################################
 
-RUN /opt/conda/bin/conda install --yes -c conda-forge dockerspawner==0.11.0
+RUN /opt/conda/bin/conda install --yes -c conda-forge dockerspawner==0.11.1
 RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.6/site-packages/nbrepo
 RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/python3.6/site-packages/
 
