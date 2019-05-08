@@ -47,8 +47,41 @@ meantime thought it would be useful to share this with the community.
 ```python
 from dockerspawner import SwarmSpawner
 from docker.types import Mount
+from tornado import gen
 
-class SwarmSpawner2(SwarmSpawner):
+class FixedSwarmSpawner(SwarmSpawner):
+
+   @gen.coroutine
+    def start_object(self):
+        """Not actually starting anything
+        but use this to wait for the container to be running.
+        Spawner.start shouldn't return until the Spawner
+        believes a server is *running* somewhere,
+        not just requested.
+        """
+
+        dt = 1.0
+
+        while True:
+            yield gen.sleep(dt)
+            service = yield self.get_task()
+            if not service:
+                raise RuntimeError("Service %s not found" % self.service_name)
+
+            status = service["Status"]
+            state = status["State"].lower()
+            self.log.debug("Service %s state: %s", self.service_id[:7], state)
+            if state in {"new", "assigned", "accepted", "starting", "pending", "preparing"}:
+                # not ready yet, wait before checking again
+                yield gen.sleep(dt)
+                # exponential backoff
+                dt = min(dt * 1.5, 11)
+            else:
+                break
+        if state != "running":
+            raise RuntimeError(
+                "Service %s not running: %s" % (self.service_name, pformat(status))
+            )
 
     @property
     def mounts(self):
@@ -68,21 +101,18 @@ class SwarmSpawner2(SwarmSpawner):
         else:
             return []
 
-c.JupyterHub.spawner_class = SwarmSpawner2
+c.JupyterHub.spawner_class = FixedSwarmSpawner
 
 # Configure DockerSpawner
-# c.JupyterHub.spawner_class = 'dockerspawner.SwarmSpawner'
-
-# c.SwarmSpawner.host_ip = '0.0.0.0'
-c.SwarmSpawner2.image = 'genepattern/genepattern-notebook'
-c.SwarmSpawner2.network_name = 'repo'
-c.SwarmSpawner2.extra_host_config = { 'network_mode': 'repo' }
-c.SwarmSpawner2.remove_containers = True
-c.SwarmSpawner2.debug = True
+c.FixedSwarmSpawner.image = 'genepattern/genepattern-notebook'
+c.FixedSwarmSpawner.network_name = 'repo'
+c.FixedSwarmSpawner.extra_host_config = { 'network_mode': 'repo' }
+c.FixedSwarmSpawner.remove_containers = True
+c.FixedSwarmSpawner.debug = True
 
 # Mount the user's directory in the singleuser containers
 if 'DATA_DIR' in os.environ:
-    c.SwarmSpawner2.volumes = {
+    c.FixedSwarmSpawner.volumes = {
         os.environ['DATA_DIR'] + '/users/{raw_username}': '/home/jovyan',    # Mount users directory
     }
 ```
