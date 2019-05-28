@@ -7,15 +7,20 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
     // Rename python3.7 kernel
    $("[id='kernel-python3.7'] > a").text('Notebook');
 
+   // Decode username
+    const decode_username = (u) => decodeURIComponent(u.replace(/-/g, '%'));
+
     // Add username to the logout button
     const username =  (""+ window.location).split('/')[4];
-    if (username) $('#logout').html( "Logout " + username);
+    if (username) $('#logout').html( "Logout " + decode_username(username));
 
-	/**
-	 * Attach the loading screen
-	 *
-	 * @returns {*|jQuery}
-	 */
+    // Add the help button to the header
+    $("span > a.btn[href='/hub/home']").css("margin-right", "2px"); // Fix spacing
+    $("#header-container").append(
+        $('<span><a href="https://genepattern-notebook.org" target="_blank" class="btn btn-default btn-sm navbar-btn pull-right" style="margin-right: 4px;">Help</a></span>')
+    );
+
+	// Attach the loading screen
 	const loadingScreen = function() {
 	    const base_url = Jupyter.contents ? Jupyter.contents.base_url : (Jupyter.notebook_list ? Jupyter.notebook_list.base_url : Jupyter.editor.base_url);
 	    const STATIC_PATH = location.origin + base_url + "nbextensions/genepattern/resources/";
