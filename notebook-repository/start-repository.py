@@ -22,6 +22,7 @@ parser.add_argument('-d', '--data', type=str, default='/data', help='Set the dat
 parser.add_argument('-p', '--port', type=int, default=80, help='Set the port the repository will be available at')
 parser.add_argument('-n', '--network', type=str, default='repo', help='The name of the Docker network to run on')
 parser.add_argument('-a', '--aws', type=str, default=aws_dir, help='The location of the your AWS credentials (~/.aws)')
+parser.add_argument('-t', '--theme', type=str, default='', help='Path to theme to be mounted into the container')
 
 # Parse the arguments
 args = parser.parse_args()
@@ -87,10 +88,55 @@ if not db_exists or not config_exists or not settings_exists:
     subprocess.run('docker rm copy_data'.split())
 
 ##########################################
+# Create the theme mount points          #
+##########################################
+
+if args.theme and os.path.exists(args.theme) and os.path.isdir(args.theme):
+    theme_mounts = ''
+
+    # Import images
+    image_dir = os.path.join(args.theme, "images")
+    if os.path.exists(image_dir) and os.path.isdir(image_dir):
+        for f in os.listdir(image_dir):
+            if f.endswith('.jpg') or f.endswith('.png') or f.endswith('.gif') or f.endswith('.jpeg'):
+                theme_mounts += f' -v {args.theme}/images/{f}:/opt/conda/share/jupyterhub/static/images/{f}'
+
+    # Import css
+    css_dir = os.path.join(args.theme, "css")
+    if os.path.exists(css_dir) and os.path.isdir(css_dir):
+        for f in os.listdir(css_dir):
+            if f.endswith('.css'):
+                theme_mounts += f' -v {args.theme}/css/{f}:/opt/conda/share/jupyterhub/static/css/{f}'
+
+    # Import fonts
+    font_dir = os.path.join(args.theme, "fonts")
+    if os.path.exists(font_dir) and os.path.isdir(font_dir):
+        for f in os.listdir(font_dir):
+            if f.endswith('.eot') or f.endswith('.woff') or f.endswith('.ttf') or f.endswith('.svg'):
+                theme_mounts += f' -v {args.theme}/fonts/{f}:/opt/conda/share/jupyterhub/static/fonts/{f}'
+
+    # Import templates
+    template_dir = os.path.join(args.theme, "templates")
+    if os.path.exists(template_dir) and os.path.isdir(template_dir):
+        for f in os.listdir(template_dir):
+            if f.endswith('.html'):
+                theme_mounts += f' -v {args.theme}/templates/{f}:/opt/conda/share/jupyterhub/templates/{f}'
+else:
+    theme_mounts = ''
+
+##########################################
 # Start the Notebook Repository          #
 ##########################################
 
 try:
-    subprocess.Popen(f'docker run --rm --net={args.network} --name=notebook_repository -e DATA_DIR={args.data} -p {args.port}:80 -v {args.data}:/data -v {args.aws}:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock genepattern/notebook-repository'.split())
+    subprocess.Popen(f'docker run --rm \
+                                  --net={args.network} \
+                                  --name=notebook_repository \
+                                  -e DATA_DIR={args.data} \
+                                  -p {args.port}:80 \
+                                  -v {args.data}:/data \
+                                  -v {args.aws}:/root/.aws \
+                                  {theme_mounts} \
+                                  -v /var/run/docker.sock:/var/run/docker.sock genepattern/notebook-repository'.split())
 except KeyboardInterrupt:
     print('Shutting down Notebook Repository')
