@@ -94,6 +94,9 @@ COPY ./favicon.ico /opt/conda/lib/python3.6/site-packages/notebook/static/base/i
 COPY ./custom.css /opt/conda/lib/python3.6/site-packages/notebook/static/custom/custom.css
 COPY ./custom.js /opt/conda/lib/python3.6/site-packages/notebook/static/custom/custom.js
 
+# Install the theme CSS
+COPY ./theme.css /opt/conda/lib/python3.6/site-packages/notebook/static/custom/theme.css
+
 #############################################
 ##  ROOT                                   ##
 ##      Configure nbextensions             ##
