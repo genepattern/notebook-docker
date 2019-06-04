@@ -75,7 +75,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
 USER $NB_USER
 
-RUN echo 'nbtools 0.2.7, genepattern-notebook 0.8.6'
+RUN echo 'nbtools 19.05, genepattern-notebook 19.05'
 
 #############################################
 ##  $NB_USER                               ##
@@ -96,6 +96,7 @@ COPY ./custom.js /opt/conda/lib/python3.6/site-packages/notebook/static/custom/c
 
 # Install the theme CSS
 COPY ./theme.css /opt/conda/lib/python3.6/site-packages/notebook/static/custom/theme.css
+COPY ./background.jpg /opt/conda/lib/python3.6/site-packages/notebook/static/custom/background.jpg
 
 #############################################
 ##  ROOT                                   ##
