@@ -1,8 +1,8 @@
 # Dockerfile for running an instance of the GenePattern Notebook Repository
 
 # Pull the latest known good jupyterhub image from the official Jupyter stacks
-# Built 02-14-2019
-FROM jupyterhub/jupyterhub:0.9.4
+# Built 04-01-2019
+FROM jupyterhub/jupyterhub:0.9.6
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
@@ -39,7 +39,13 @@ RUN /bin/bash -c "source activate repository && \
                 django-cors-middleware==1.3.1 \
                 pyppeteer==0.0.25 \
                 requests==2.21.0 \
-                jupyterhub==0.9.4"
+                jupyterhub==0.9.6"
+
+#############################################
+##      Force builds with new releases     ##
+#############################################
+
+RUN echo 'notebook-repository 19.05.1'
 
 #############################################
 ##      Add the repository webservice      ##
@@ -73,7 +79,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Install Authenticator & Spawner    ##
 #############################################
 
-RUN /opt/conda/bin/conda install --yes -c conda-forge dockerspawner==0.11.1
+RUN pip install dockerspawner==0.11.1
 RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.6/site-packages/nbrepo
 RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/python3.6/site-packages/
 
