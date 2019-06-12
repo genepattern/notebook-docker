@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Oswald|PT+Sans');
+@import url('https://fonts.googleapis.com/css?family=Nunito|PT+Sans');
 
 body {
     font-family: 'PT Sans', sans-serif;
@@ -10,7 +10,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6, h7, h8 {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Nunito', sans-serif;
 }
 
 #header {
@@ -146,7 +146,7 @@ div.cell {
     padding: 2px;
 }
 
-div.cell.text_cell > .input_area > .CodeMirror {
+div.cell.text_cell .input_area > .CodeMirror {
 	min-height: 60px;
 }
 
@@ -221,16 +221,17 @@ div.output_subarea {
     transition: height .2s ease;
 }
 
-/*
-div.output > div.output_area:first-child > .output_subarea.jupyter-widgets-view {
-    margin-left: -20px;
-}
- */
 
 /* TOC STUFF */
 
 #toc-wrapper {
     border-top-right-radius: 25px;
+}
+
+#toc-wrapper.float-wrapper {
+    border-top-left-radius: 25px;
+	border-bottom-left-radius: 25px;
+	border-bottom-right-radius: 25px;
 }
 
 .highlight_on_scroll {
@@ -256,84 +257,84 @@ div.gp-widget.gp-widget-auth .form-group {
     margin-bottom: 5px;
 }
 
-.gp-widget-task-subheader,
-.nbtools-uibuilder-subheader {
+div.gp-widget-task-subheader,
+div.nbtools-uibuilder-subheader {
     padding-top: 5px;
     padding-left: 5px;
     padding-right: 5px;
 }
 
-.gp-widget-task > .panel-body > .alert {
+.gp-widget-task > .panel-body > div.alert {
     margin-top: 5px;
     margin-right: 5px;
     margin-left: 5px;
     margin-bottom: 5px;
 }
 
-.gp-widget-task-desc {
+div.gp-widget-task-desc {
     padding-bottom: 5px;
 }
 
-.gp-widget-task-run,
-.nbtools-uibuilder-run {
+div.gp-widget-task-run,
+div.nbtools-uibuilder-run {
     padding-top: 0;
 }
 
-.gp-widget-task-run-button,
-.nbtools-uibuilder-run > button.btn {
+div.gp-widget-task-run-button,
+div.nbtools-uibuilder-run > button.btn {
 	float: right;
 	margin-bottom: 5px;
 	margin-left: 5px;
 	top: 0;
 }
 
-.gp-widget-task-param,
-.nbtools-uibuilder-param {
+div.gp-widget-task-param,
+div.nbtools-uibuilder-param {
     margin-top: 5px;
 	padding-right: 10px;
 	margin-bottom: 10px;
 }
 
-.gp-widget-task-footer,
-.nbtools-uibuilder-footer {
+div.gp-widget-task-footer,
+div.nbtools-uibuilder-footer {
     padding-top: 5px;
     padding-left: 5px;
     padding-right: 5px;
 }
 
-.nbtools-file {
+div.nbtools-file {
     border: none;
     padding: 0;
 }
 
-.nbtools-file-value {
+div.nbtools-file-value {
     margin-top: 2px;
 }
 
-.gp-widget-task-param-desc {
+div.gp-widget-task-param-desc {
     line-height: 14px;
 }
 
-div.gp-widget.gp-widget-job > .panel-body {
+div.gp-widget.gp-widget-job > div.panel-body {
 	padding: 5px;
 }
 
-.nbtools-uibuilder-form > .nbtools-uibuilder-param {
+.nbtools-uibuilder-form > div.nbtools-uibuilder-param {
 	margin-top: 0;
 	margin-bottom: 5px;
 }
 
-.nbtools-uibuilder-footer {
+div.nbtools-uibuilder-footer {
 	padding-top: 0;
 	height: 78px;
 	position: relative;
 }
 
-.nbtools-uibuilder-footer .form-group.nbtools-uibuilder-param {
+.nbtools-uibuilder-footer div.form-group.nbtools-uibuilder-param {
 	padding-right: 0px;
 }
 
-.nbtools-uibuilder-footer > .nbtools-uibuilder-run {
+.nbtools-uibuilder-footer > div.nbtools-uibuilder-run {
 	position: absolute;
 	right: 5px;
 	top: 40px;
@@ -350,7 +351,6 @@ div.gp-widget.gp-widget-job > .panel-body {
 /* TEXT EDITOR PAGE */
 
 #texteditor-backdrop {
-
     background-color: transparent !important;
 
 }

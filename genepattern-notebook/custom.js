@@ -10,8 +10,76 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
    // Decode username
     const decode_username = (u) => decodeURIComponent(u.replace(/-/g, '%'));
 
+    function cookie_to_map() {
+        const cookie_map = {};
+
+        document.cookie.split(';').forEach(function(cookie_str) {
+            const pair = cookie_str.split('=');
+            const key = pair[0].trim();
+            cookie_map[key] = pair.length > 1 ? pair[1].trim() : '';
+        });
+
+        return cookie_map;
+    }
+
+    function cookie_to_map() {
+        const cookie_map = {};
+
+        document.cookie.split(';').forEach(function(cookie_str) {
+            const pair = cookie_str.split('=');
+            const key = pair[0].trim();
+            cookie_map[key] = pair.length > 1 ? pair[1].trim() : '';
+        });
+
+        return cookie_map;
+    }
+
+    function extract_username() {
+        let username = null;
+
+        // Try to get username from GPNB cookie
+        const cookie_map = cookie_to_map();
+        if (cookie_map['gpnb-username'] !== undefined &&
+            cookie_map['gpnb-username'] !== null &&
+            cookie_map['gpnb-username'] !== 'undefined' &&
+            cookie_map['gpnb-username'] !== 'null') {
+            username = cookie_map['gpnb-username'];
+        }
+
+        // Try to get username from JupyterHub cookie
+        if (username === null) {
+            $.each(cookie_map, function(i) {
+                if (i.startsWith("jupyter-hub-token-")) {
+                    username = decodeURIComponent(i.match(/^jupyter-hub-token-(.*)/)[1]);
+                }
+            });
+        }
+
+        // Try to get the username from the URL
+        if (username === null) {
+            const url_parts = window.location.href.split('/');
+            if (url_parts.length >= 5 &&
+                url_parts[0] === window.location.protocol &&
+                url_parts[1] === '' &&
+                url_parts[2] === window.location.host &&
+                url_parts[3] === 'user') {
+                username = decodeURI(url_parts[4])
+            }
+        }
+
+        // If all else fails, prompt the user
+        if (username === null) {
+            username = prompt("What is your username?", "");
+        }
+
+        // Set a GPNB cookie
+        document.cookie = 'gpnb-username' + '=' + username;
+
+        return username;
+    }
+
     // Add username to the logout button
-    const username =  (""+ window.location).split('/')[4];
+    const username =  extract_username();
     if (username) $('#logout').html( "Logout " + decode_username(username));
 
     // Add the help button to the header
