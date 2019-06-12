@@ -89,13 +89,6 @@ body {
 	background-color: #f1f2f2;
 }
 
-/*#ipython-main-app {*/
-	/*background-color: #fff;*/
-    /*box-shadow: 0 0 12px 1px rgba(87, 87, 87, 0.2);*/
-    /*min-height: 0;*/
-    /*height: auto;*/
-/*}*/
-
 #tab_content {
     padding: 15px;
 }

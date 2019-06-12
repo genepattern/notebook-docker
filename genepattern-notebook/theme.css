@@ -17,7 +17,6 @@ h1, h2, h3, h4, h5, h6, h7, h8 {
 	background: rgba(0, 0, 0, 0.2) !important;
 	background-color: transparent;
 	padding-bottom: 4px;
-	left: -7px;
 }
 
 body > #header #header-container {
@@ -101,6 +100,8 @@ body > #header #header-container > span > a.btn {
 
 #notebook-container {
 	border-radius: 25px;
+	position: relative;
+	left: 7px;
 }
 
 #ipython-main-app {
