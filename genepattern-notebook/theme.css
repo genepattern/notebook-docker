@@ -345,3 +345,17 @@ div.gp-widget.gp-widget-job > .panel-body {
 	border-radius: 25px;
 	margin-bottom: 20px;
 }
+
+/* TEXT EDITOR STUFF */
+
+#texteditor-backdrop {
+
+    background-color: transparent !important;
+
+}
+
+/* TERMINAL STUFF */
+
+.terminal-app {
+    background: url(background.jpg) !important;
+}
