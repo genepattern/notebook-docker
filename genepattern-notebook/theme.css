@@ -338,7 +338,7 @@ div.gp-widget.gp-widget-job > .panel-body {
 	top: 40px;
 }
 
-/* FILES STUFF */
+/* FILES PAGE */
 
 #tab_content {
 	background: white;
@@ -346,7 +346,7 @@ div.gp-widget.gp-widget-job > .panel-body {
 	margin-bottom: 20px;
 }
 
-/* TEXT EDITOR STUFF */
+/* TEXT EDITOR PAGE */
 
 #texteditor-backdrop {
 
@@ -354,8 +354,16 @@ div.gp-widget.gp-widget-job > .panel-body {
 
 }
 
-/* TERMINAL STUFF */
+/* TERMINAL PAGE */
 
 .terminal-app {
     background: url(background.jpg) !important;
+}
+
+/* TOKEN PAGE */
+
+body[dir=ltr] #ipython-main-app > .rendered_html {
+    color: #000;
+    background: white;
+    padding: 10px;
 }
