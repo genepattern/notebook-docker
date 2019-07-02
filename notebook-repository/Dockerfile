@@ -45,7 +45,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'notebook-repository 19.05.1'
+RUN echo 'notebook-repository 19.07'
 
 #############################################
 ##      Add the repository webservice      ##
