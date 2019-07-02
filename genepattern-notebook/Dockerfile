@@ -75,7 +75,7 @@ RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
 
 USER $NB_USER
 
-RUN echo 'nbtools 19.05, genepattern-notebook 19.05'
+RUN echo 'nbtools 19.07.2, genepattern-notebook 19.07'
 
 #############################################
 ##  $NB_USER                               ##
