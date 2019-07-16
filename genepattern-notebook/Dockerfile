@@ -15,8 +15,8 @@ EXPOSE 8888
 
 USER root
 
-# Install the missing Qt4 API (used by matplotlib)
-RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+# Install the missing Qt4 API (used by matplotlib), certificates and libxtst6 (used by plotly)
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl software-properties-common libxtst6
 
 # Install Docker from Docker Inc. repositories.
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
