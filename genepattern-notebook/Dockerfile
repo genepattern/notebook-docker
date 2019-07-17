@@ -10,18 +10,26 @@ EXPOSE 8888
 
 #############################################
 ##  ROOT                                   ##
+##      Install missing libraries          ##
+#############################################
+
+USER root
+
+# Install the missing Qt4 API (used by matplotlib)
+RUN apt-get update && apt-get install -y python-qt4 apt-transport-https ca-certificates curl software-properties-common \
+    libxtst6 libssl-dev libcurl4-openssl-dev
+
+#############################################
+##  ROOT                                   ##
 ##      Install Docker                     ##
 #############################################
 
 USER root
 
-# Install the missing Qt4 API (used by matplotlib), certificates and libxtst6 (used by plotly)
-RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl software-properties-common libxtst6
-
 # Install Docker from Docker Inc. repositories.
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-RUN apt-get update && apt-get install -y docker-ce
+RUN apt-get install -y docker-ce
 
 # Install the magic wrapper.
 RUN wget https://raw.githubusercontent.com/jpetazzo/dind/master/wrapdocker --output-document=/usr/local/bin/wrapdocker
@@ -32,50 +40,13 @@ RUN gpasswd -a $NB_USER docker
 RUN newgrp docker
 
 #############################################
-##  ROOT                                   ##
-##      Update QT4                         ##
-#############################################
-
-USER root
-
-# Install the missing Qt4 API (used by matplotlib)
-RUN apt-get install -y python-qt4
-
-#############################################
-##  ROOT                                   ##
-##      Install R and rpy2                 ##
-#############################################
-
-USER root
-
-# Install R and RPY2
-RUN apt-get install gpg -y
-RUN sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/" >> /etc/apt/sources.list'
-RUN gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
-RUN gpg -a --export E084DAB9 | sudo apt-key add -
-RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
-RUN apt-get install -y r-base r-base-dev libssl-dev libcurl4-openssl-dev
-RUN pip install rpy2==2.8.5 --ignore-installed
-RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
-RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/startup/mymagics.ipy
-RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
-
-# Install R libraries
-RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > /usr/lib/R/.Rprofile
-RUN Rscript -e "install.packages('openssl')"
-RUN Rscript -e "install.packages('curl')"
-RUN Rscript -e "install.packages('httr')"
-RUN Rscript -e "install.packages('ggplot2')"
-RUN Rscript -e "source('https://bioconductor.org/biocLite.R')"
-
-#############################################
 ##  $NB_USER                               ##
 ##      Force builds with new releases     ##
 #############################################
 
 USER $NB_USER
 
-RUN echo 'nbtools 19.07.3, genepattern-notebook 19.07.1'
+RUN echo 'nbtools 19.07.3, genepattern-notebook 19.07.1, R conda env'
 
 #############################################
 ##  $NB_USER                               ##
@@ -153,13 +124,29 @@ RUN jupyter nbextension enable --sys-prefix --py cyjupyter
 
 #############################################
 ##  $NB_USER                               ##
+##      Create the R 3.5 environment       ##
+#############################################
+
+USER $NB_USER
+
+# Create the Python 3.7 environment
+RUN conda update -y conda
+RUN conda create -y --name r3.5 r-base r-essentials r-irkernel
+
+RUN /bin/bash -c "source activate r3.5 && \
+    Rscript -e \"source('https://bioconductor.org/biocLite.R')\""
+
+# Set R_HOME (necessary for rpy2 to load)
+ENV R_HOME=/opt/conda/envs/r3.5/lib/R
+
+#############################################
+##  $NB_USER                               ##
 ##      Create the Python 3.6 environment  ##
 #############################################
 
 USER $NB_USER
 
 # Create the Python 3.6 environment
-RUN conda update -y conda
 RUN conda create -y --name python3.6 python=3.6 anaconda ipykernel==5.1.0
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
@@ -167,7 +154,7 @@ RUN conda create -y --name python3.6 python=3.6 anaconda ipykernel==5.1.0
 RUN /bin/bash -c "source activate python3.6 && \
     conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=0.23*' 'numexpr=2.6*' 'matplotlib=2.2*' 'scipy=1.1*' 'seaborn=0.9*' \
     'scikit-learn=0.19*' 'scikit-image=0.14*' 'sympy=1.1*' 'cython=0.28*' 'patsy=0.5*' 'statsmodels=0.9*' 'cloudpickle=0.5*' 'dill=0.2*' 'numba=0.38*' \
-    'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd=1.1.0'"
+    'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd=1.1.0' 'rpy2'"
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -177,10 +164,7 @@ RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' \
     'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'plotly==2.4.1' \
-    'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
-
-# Ugly hack for the single-cell notebook. Remove this once that notebook is refactored.
-RUN wget -O /opt/conda/envs/python3.6/lib/python3.6/site-packages/singlecell.py https://github.com/genepattern/single_cell_clustering_notebook/raw/master/singlecell.py
+    'pysolr==3.7.0' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
 
 #############################################
 ##  $NB_USER                               ##
@@ -197,7 +181,7 @@ RUN conda create -y --name python3.7 python=3.7 anaconda ipykernel==5.1.0
 RUN /bin/bash -c "source activate python3.7 && \
     conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
     'scikit-learn' 'scikit-image' 'sympy' 'cython' 'patsy' 'statsmodels' 'cloudpickle' 'dill' 'numba' \
-    'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd' 'simplegeneric'"
+    'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd' 'simplegeneric' 'rpy2'"
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -210,7 +194,7 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     pip install 'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install 'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1'"
+    pip install 'plotly==2.4.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1'"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install scanpy memory_profiler"
 RUN /bin/bash -c "source activate python3.7 && \
@@ -226,6 +210,7 @@ USER root
 # Add the environments as Jupyter kernels
 RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'"
 RUN /bin/bash -c "source activate python3.7 && python -m ipykernel install --name python3.7 --display-name 'Python 3.7'"
+# RUN /bin/bash -c "source activate r3.5 && Rscript -e \"IRkernel::installspec()\""
 
 # Remove the default Python kernel
 RUN rm -r /opt/conda/share/jupyter/kernels/python3
