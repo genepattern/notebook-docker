@@ -4,5 +4,5 @@
 # GenePattern Notebook Dockerfiles
 
 These Docker images allow a user to easily run the [GenePattern Notebook](https://github.com/genepattern/genepattern-notebook) 
-environment. If in doubt, pick the image in the genepattern-notebook directory. The contains are also 
+environment. If in doubt, pick the image in the genepattern-notebook directory. The containers are also 
 available directly through [Docker Hub](https://hub.docker.com/r/genepattern/genepattern-notebook/).
