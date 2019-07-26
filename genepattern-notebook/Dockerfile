@@ -236,7 +236,7 @@ USER root
 # Add the environments as Jupyter kernels
 RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'" && \
     /bin/bash -c "source activate python3.7 && python -m ipykernel install --name python3.7 --display-name 'Python 3.7'" && \
-    /opt/R3.6/bin/RscriptRscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6', displayname = 'R 3.6')"
+    /opt/R3.6/bin/Rscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6', displayname = 'R 3.6')"
 
 # Remove the default Python kernel
 RUN rm -r /opt/conda/share/jupyter/kernels/python3 && \
