@@ -71,7 +71,7 @@ RUN mkdir /opt/r-tmp && chmod 777 /opt/r-tmp && \
     ln -s /opt/R3.6/bin/Rscript /opt/conda/bin/Rscript
 
 # Write Rprofile
-RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.us.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/R/lib/R/etc/Rprofile.site
+RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.us.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/R3.6/lib/R/etc/Rprofile.site
 
 # Install common R libraries
 RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
