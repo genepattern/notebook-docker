@@ -17,7 +17,7 @@ USER root
 
 # Install the missing Qt4 API (used by matplotlib)
 RUN apt-get update && apt-get install -y python-qt4 apt-transport-https ca-certificates curl software-properties-common \
-    libxtst6 libssl-dev libcurl4-openssl-dev
+    libxtst6 libssl-dev libcurl4-openssl-dev gpg build-essential python-dev default-jdk
 
 #############################################
 ##  ROOT                                   ##
@@ -27,26 +27,79 @@ RUN apt-get update && apt-get install -y python-qt4 apt-transport-https ca-certi
 USER root
 
 # Install Docker from Docker Inc. repositories.
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-RUN apt-get install -y docker-ce
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+    apt-get install -y docker-ce
 
 # Install the magic wrapper.
-RUN wget https://raw.githubusercontent.com/jpetazzo/dind/master/wrapdocker --output-document=/usr/local/bin/wrapdocker
-RUN chmod +x /usr/local/bin/wrapdocker
+RUN wget https://raw.githubusercontent.com/jpetazzo/dind/master/wrapdocker --output-document=/usr/local/bin/wrapdocker && \
+    chmod +x /usr/local/bin/wrapdocker
 
 # Set up the Docker service
-RUN gpasswd -a $NB_USER docker
-RUN newgrp docker
+RUN gpasswd -a $NB_USER docker && \
+    newgrp docker
+
+#############################################
+##  ROOT                                   ##
+##      Install R and rpy2                 ##
+#############################################
+
+USER root
+
+# Install R dev dependencies
+RUN sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/" >> /etc/apt/sources.list' && \
+    gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9 && \
+    gpg -a --export E084DAB9 | sudo apt-key add - && \
+    apt-get update && apt-get install -y r-base-dev         libcairo2-dev libxt-dev xvfb
+
+# Set up the environment for R compilation (take conda off the PATH, it screws up compiling R)
+ENV OLD_PATH=$PATH
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+RUN chmod 777 /opt
+USER $NB_USER
+
+# Download, configure, compile and install R
+RUN mkdir /opt/r-tmp && chmod 777 /opt/r-tmp && \
+    cd /opt/r-tmp && \
+    curl -O http://cran.r-project.org/src/base/R-3/R-3.6.1.tar.gz && \
+    tar xvf R-3.6.1.tar.gz && \
+    cd R-3.6.1 && \
+    ./configure LIBnn=lib --with-x --with-readline --prefix=/opt/R3.6 --enable-R-shlib --with-cairo --with-libpng --with-blas --with-lapack && \
+    make && \
+    make install && \
+    ln -s /opt/R3.6/bin/R /opt/conda/bin/R && \
+    ln -s /opt/R3.6/bin/Rscript /opt/conda/bin/Rscript
+
+# Write Rprofile
+RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.us.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/R/lib/R/etc/Rprofile.site
+
+# Install common R libraries
+RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
+    /opt/R3.6/bin/Rscript -e "install.packages('curl')" && \
+    /opt/R3.6/bin/Rscript -e "install.packages('httr')" && \
+    /opt/R3.6/bin/Rscript -e "install.packages('ggplot2')" && \
+    /opt/R3.6/bin/Rscript -e "install.packages('BiocManager')" && \
+    /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')"
+
+# Restore the environment after R compilation
+USER root
+ENV PATH=$OLD_PATH
+RUN chmod 755 /opt && \
+    rm -r /opt/r-tmp
+
+# Install rpy2 and enable by default
+#RUN pip install rpy2==2.8.5 --ignore-installed
+#USER $NB_USER
+#RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
+#RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/startup/mymagics.ipy
+#RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
 
 #############################################
 ##  $NB_USER                               ##
 ##      Force builds with new releases     ##
 #############################################
 
-USER $NB_USER
-
-RUN echo 'nbtools 19.07.3, genepattern-notebook 19.07.1, R conda env'
+RUN echo 'nbtools 19.07.4, genepattern-notebook 19.07.1, R from source'
 
 #############################################
 ##  $NB_USER                               ##
@@ -55,19 +108,11 @@ RUN echo 'nbtools 19.07.3, genepattern-notebook 19.07.1, R conda env'
 
 USER $NB_USER
 
-# Copy the logo
-COPY ./logo.png /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/logo.png
-
-# Copy the favicon
-COPY ./favicon.ico /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/favicon.ico
+# Copy the logo and favicon
+COPY ./logo.png ./favicon.ico /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/
 
 # Install the custom theme
-COPY ./custom.css /opt/conda/lib/python3.6/site-packages/notebook/static/custom/custom.css
-COPY ./custom.js /opt/conda/lib/python3.6/site-packages/notebook/static/custom/custom.js
-
-# Install the theme CSS
-COPY ./theme.css /opt/conda/lib/python3.6/site-packages/notebook/static/custom/theme.css
-COPY ./background.jpg /opt/conda/lib/python3.6/site-packages/notebook/static/custom/background.jpg
+COPY ./custom.css ./custom.js ./theme.css ./background.jpg /opt/conda/lib/python3.6/site-packages/notebook/static/custom/
 
 #############################################
 ##  ROOT                                   ##
@@ -80,64 +125,49 @@ USER root
 RUN pip install -v nbtools genepattern-notebook jupyter_wysiwyg
 
 # Enable the extensions
-RUN jupyter nbextension enable --sys-prefix --py nbtools
-RUN jupyter nbextension enable --sys-prefix --py genepattern
-RUN jupyter nbextension enable --sys-prefix --py jupyter_wysiwyg
+RUN jupyter nbextension enable --sys-prefix --py nbtools && \
+    jupyter nbextension enable --sys-prefix --py genepattern && \
+    jupyter nbextension enable --sys-prefix --py jupyter_wysiwyg
 
 # Enable Notebook Repository frontend
-RUN git clone https://github.com/genepattern/notebook-repository-frontend.git
-RUN cd notebook-repository-frontend && jupyter nbextension install repo
-RUN cd notebook-repository-frontend && jupyter nbextension enable --sys-prefix repo/js/main
-RUN cd notebook-repository-frontend && jupyter nbextension enable --sys-prefix --section=tree repo/js/main
-RUN rm -r notebook-repository-frontend
+RUN git clone https://github.com/genepattern/notebook-repository-frontend.git && \
+    cd notebook-repository-frontend && \
+    jupyter nbextension install repo && \
+    jupyter nbextension enable --sys-prefix repo/js/main && \
+    jupyter nbextension enable --sys-prefix --section=tree repo/js/main && \
+    rm -r ../notebook-repository-frontend
 
 # Enable Notebook Repository hints
-RUN git clone https://github.com/genepattern/notebook-tour.git
-RUN cd notebook-tour && jupyter nbextension install hints
-RUN cd notebook-tour && jupyter nbextension enable --sys-prefix --section=tree hints/js/main
-RUN rm -r notebook-tour
+RUN git clone https://github.com/genepattern/notebook-tour.git && \
+    cd notebook-tour && \
+    jupyter nbextension install hints && \
+    jupyter nbextension enable --sys-prefix --section=tree hints/js/main && \
+    rm -r ../notebook-tour
 
 # Install the collapsible_headings extension
-RUN mkdir /opt/conda/share/jupyter/nbextensions/collapsible_headings
-RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.js -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.js
-RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.css -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.css
-RUN echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/collapsible_headings.json
+RUN mkdir /opt/conda/share/jupyter/nbextensions/collapsible_headings && \
+    wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.js -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.js && \
+    wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.css -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.css && \
+    echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/collapsible_headings.json
 
 # Install the toc2 extension
-RUN mkdir /opt/conda/share/jupyter/nbextensions/toc2
-RUN wget https://raw.githubusercontent.com/ipython-contrib/jupyter_contrib_nbextensions/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/main.js -O /opt/conda/share/jupyter/nbextensions/toc2/main.js
-RUN wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/main.css -O /opt/conda/share/jupyter/nbextensions/toc2/main.css
-RUN wget https://raw.githubusercontent.com/ipython-contrib/jupyter_contrib_nbextensions/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/toc2.js -O /opt/conda/share/jupyter/nbextensions/toc2/toc2.js
-RUN sed -i "s/number_sections: true/number_sections: false/" /opt/conda/share/jupyter/nbextensions/toc2/toc2.js
-RUN sed -i "s/moveMenuLeft: true/moveMenuLeft: false/" /opt/conda/share/jupyter/nbextensions/toc2/toc2.js
-RUN echo '{"load_extensions": {"toc2/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/toc2.json
+RUN mkdir /opt/conda/share/jupyter/nbextensions/toc2 && \
+    wget https://raw.githubusercontent.com/ipython-contrib/jupyter_contrib_nbextensions/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/main.js -O /opt/conda/share/jupyter/nbextensions/toc2/main.js && \
+    wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/main.css -O /opt/conda/share/jupyter/nbextensions/toc2/main.css && \
+    wget https://raw.githubusercontent.com/ipython-contrib/jupyter_contrib_nbextensions/master/src/jupyter_contrib_nbextensions/nbextensions/toc2/toc2.js -O /opt/conda/share/jupyter/nbextensions/toc2/toc2.js && \
+    sed -i "s/number_sections: true/number_sections: false/" /opt/conda/share/jupyter/nbextensions/toc2/toc2.js && \
+    sed -i "s/moveMenuLeft: true/moveMenuLeft: false/" /opt/conda/share/jupyter/nbextensions/toc2/toc2.js && \
+    echo '{"load_extensions": {"toc2/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/toc2.json
 
 # Install the igv.js extension
-RUN pip install -v igv-jupyter==0.9.7
-RUN jupyter serverextension enable --sys-prefix --py igv
-RUN jupyter nbextension install --sys-prefix --py igv
-RUN jupyter nbextension enable --sys-prefix --py igv
+RUN pip install -v igv-jupyter==0.9.7 && \
+    jupyter serverextension enable --sys-prefix --py igv && \
+    jupyter nbextension install --sys-prefix --py igv && \
+    jupyter nbextension enable --sys-prefix --py igv
 
 # Install the cytoscape extension
-RUN pip install -v cyjupyter==0.2.0
-RUN jupyter nbextension enable --sys-prefix --py cyjupyter
-
-#############################################
-##  $NB_USER                               ##
-##      Create the R 3.5 environment       ##
-#############################################
-
-USER $NB_USER
-
-# Create the Python 3.7 environment
-RUN conda update -y conda
-RUN conda create -y --name r3.5 r-base r-essentials r-irkernel
-
-RUN /bin/bash -c "source activate r3.5 && \
-    Rscript -e \"source('https://bioconductor.org/biocLite.R')\""
-
-# Set R_HOME (necessary for rpy2 to load)
-ENV R_HOME=/opt/conda/envs/r3.5/lib/R
+RUN pip install -v cyjupyter==0.2.0 && \
+    jupyter nbextension enable --sys-prefix --py cyjupyter
 
 #############################################
 ##  $NB_USER                               ##
@@ -154,17 +184,17 @@ RUN conda create -y --name python3.6 python=3.6 anaconda ipykernel==5.1.0
 RUN /bin/bash -c "source activate python3.6 && \
     conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=0.23*' 'numexpr=2.6*' 'matplotlib=2.2*' 'scipy=1.1*' 'seaborn=0.9*' \
     'scikit-learn=0.19*' 'scikit-image=0.14*' 'sympy=1.1*' 'cython=0.28*' 'patsy=0.5*' 'statsmodels=0.9*' 'cloudpickle=0.5*' 'dill=0.2*' 'numba=0.38*' \
-    'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd=1.1.0' 'rpy2'"
+    'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd=1.1.0'"
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.6 && \
-    conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1' 'beakerx==1.2.0'"
+    conda install -y -c conda-forge 'biopython==1.70' 'igraph==0.7.1' 'babel==2.4.0' 'louvain==0.6.1'"
 RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' \
-    'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'plotly==2.4.1' \
-    'pysolr==3.7.0' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
+    'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'plotly==2.4.1' 'beakerx==1.2.0' \
+    'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
 
 #############################################
 ##  $NB_USER                               ##
@@ -181,7 +211,7 @@ RUN conda create -y --name python3.7 python=3.7 anaconda ipykernel==5.1.0
 RUN /bin/bash -c "source activate python3.7 && \
     conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
     'scikit-learn' 'scikit-image' 'sympy' 'cython' 'patsy' 'statsmodels' 'cloudpickle' 'dill' 'numba' \
-    'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd' 'simplegeneric' 'rpy2'"
+    'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd' 'simplegeneric'"
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -190,13 +220,9 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     conda install -y -c bioconda 'pysam'"
 RUN /bin/bash -c "source activate python3.7 && \
-    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg"
-RUN /bin/bash -c "source activate python3.7 && \
-    pip install 'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' "
-RUN /bin/bash -c "source activate python3.7 && \
-    pip install 'plotly==2.4.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1'"
-RUN /bin/bash -c "source activate python3.7 && \
-    pip install scanpy memory_profiler"
+    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
+    'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' \
+    'plotly==2.4.1' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' scanpy memory_profiler"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install -e git://github.com/LankyCyril/genefab.git#egg=genefab --src=/opt/conda/envs/python3.7/lib/python3.7/site-packages/"
 
@@ -208,13 +234,13 @@ RUN /bin/bash -c "source activate python3.7 && \
 USER root
 
 # Add the environments as Jupyter kernels
-RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'"
-RUN /bin/bash -c "source activate python3.7 && python -m ipykernel install --name python3.7 --display-name 'Python 3.7'"
-# RUN /bin/bash -c "source activate r3.5 && Rscript -e \"IRkernel::installspec()\""
+RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'" && \
+    /bin/bash -c "source activate python3.7 && python -m ipykernel install --name python3.7 --display-name 'Python 3.7'" && \
+    /opt/R3.6/bin/RscriptRscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6', displayname = 'R 3.6')"
 
 # Remove the default Python kernel
-RUN rm -r /opt/conda/share/jupyter/kernels/python3
-RUN echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
+RUN rm -r /opt/conda/share/jupyter/kernels/python3 && \
+    echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
 
 #############################################
 ##  root                                   ##
@@ -223,7 +249,8 @@ RUN echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupy
 
 USER root
 
-RUN rm -r work
+RUN rm -r work && \
+    chown -R $NB_USER:users /home/$NB_USER/.local
 
 #############################################
 ##  $NB_USER                               ##
