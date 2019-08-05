@@ -28,7 +28,7 @@ RUN mkdir /data
 #############################################
 
 # Create the Python 3.6 environment
-RUN /opt/conda/bin/conda update -y conda
+# RUN /opt/conda/bin/conda update -y conda
 RUN /opt/conda/bin/conda create -y --name repository python=3.6 pip
 
 RUN /bin/bash -c "source activate repository && \
@@ -83,8 +83,8 @@ RUN /bin/bash -c "source activate repository && \
 #############################################
 
 RUN pip install dockerspawner==0.11.1
-RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.7/site-packages/nbrepo
-RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/python3.7/site-packages/
+RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.6/site-packages/nbrepo
+RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/python3.6/site-packages/
 
 #############################################
 ##      Add the jupyterhub_config file     ##
