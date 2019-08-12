@@ -99,7 +99,7 @@ RUN chmod 755 /opt && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'nbtools 19.07.4, genepattern-notebook 19.07.1, R from source'
+RUN echo 'nbtools 19.07.4, genepattern-notebook 19.08'
 
 #############################################
 ##  $NB_USER                               ##
