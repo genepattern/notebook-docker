@@ -99,7 +99,7 @@ RUN chmod 755 /opt && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'nbtools 19.08, jupyter-wysiwyg 19.08, plotly 4.1'
+RUN echo 'nbtools 19.09, genepattern-notebook 19.09'
 
 #############################################
 ##  $NB_USER                               ##
