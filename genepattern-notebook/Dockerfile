@@ -1,8 +1,8 @@
 # Dockerfile for running the GenePattern Notebook Environment
 
 # Pull the latest known good scipy notebook image from the official Jupyter stacks
-# Built 10-24-2018
-FROM jupyter/scipy-notebook:ebb42274ac29
+# Built 09-11-2019
+FROM jupyter/scipy-notebook:1386e2046833
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
@@ -47,7 +47,8 @@ RUN gpasswd -a $NB_USER docker && \
 USER root
 
 # Install R dev dependencies
-RUN sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/" >> /etc/apt/sources.list' && \
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 && \
+    add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/' && \
     gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9 && \
     gpg -a --export E084DAB9 | sudo apt-key add - && \
     apt-get update && apt-get install -y r-base-dev         libcairo2-dev libxt-dev xvfb
@@ -99,7 +100,7 @@ RUN chmod 755 /opt && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'nbtools 19.09, genepattern-notebook 19.09'
+RUN echo 'Jupyter Notebook 6'
 
 #############################################
 ##  $NB_USER                               ##
@@ -109,10 +110,10 @@ RUN echo 'nbtools 19.09, genepattern-notebook 19.09'
 USER $NB_USER
 
 # Copy the logo and favicon
-COPY ./logo.png ./favicon.ico /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/
+COPY ./logo.png ./favicon.ico /opt/conda/lib/python3.7/site-packages/notebook/static/base/images/
 
 # Install the custom theme
-COPY ./custom.css ./custom.js ./theme.css ./background.jpg /opt/conda/lib/python3.6/site-packages/notebook/static/custom/
+COPY ./custom.css ./custom.js ./theme.css ./background.jpg /opt/conda/lib/python3.7/site-packages/notebook/static/custom/
 
 #############################################
 ##  ROOT                                   ##
@@ -182,7 +183,7 @@ RUN conda create -y --name python3.6 python=3.6 anaconda ipykernel==5.1.0
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.6 && \
-    conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=0.23*' 'numexpr=2.6*' 'matplotlib=2.2*' 'scipy=1.1*' 'seaborn=0.9*' \
+    conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'pandas=0.23*' 'numexpr=2.6*' 'matplotlib=2.2*' 'scipy=1.1*' 'seaborn=0.9*' \
     'scikit-learn=0.19*' 'scikit-image=0.14*' 'sympy=1.1*' 'cython=0.28*' 'patsy=0.5*' 'statsmodels=0.9*' 'cloudpickle=0.5*' 'dill=0.2*' 'numba=0.38*' \
     'bokeh=0.13*' 'sqlalchemy=1.2*' 'hdf5=1.10*' 'h5py=2.7*' 'vincent=0.4.*' 'beautifulsoup4=4.6.*' 'protobuf=3.*' 'xlrd=1.1.0'"
 
@@ -242,7 +243,7 @@ RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --nam
 
 # Remove the default Python kernel
 RUN rm -r /opt/conda/share/jupyter/kernels/python3 && \
-    echo 'c.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
+    printf '\nc.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
 
 #############################################
 ##  root                                   ##
