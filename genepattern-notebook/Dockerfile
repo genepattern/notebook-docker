@@ -100,7 +100,7 @@ RUN chmod 755 /opt && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Jupyter Notebook 6'
+RUN echo 'Updating to nbtools 19.9.1'
 
 #############################################
 ##  $NB_USER                               ##
