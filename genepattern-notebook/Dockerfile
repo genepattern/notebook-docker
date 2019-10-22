@@ -88,19 +88,12 @@ ENV PATH=$OLD_PATH
 RUN chmod 755 /opt && \
     rm -r /opt/r-tmp
 
-# Install rpy2 and enable by default
-#RUN pip install rpy2==2.8.5 --ignore-installed
-#USER $NB_USER
-#RUN mkdir -p /home/$NB_USER/.ipython/profile_default/startup
-#RUN echo '%load_ext rpy2.ipython' >> /home/$NB_USER/.ipython/profile_default/startup/mymagics.ipy
-#RUN chown $NB_USER:users /home/$NB_USER/.ipython -R
-
 #############################################
 ##  $NB_USER                               ##
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Updating to nbtools 19.9.1'
+RUN echo 'Updating to rpy2 3.2.1'
 
 #############################################
 ##  $NB_USER                               ##
@@ -195,7 +188,7 @@ RUN /bin/bash -c "source activate python3.6 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.6' 'cuzcatlan==0.9.0' 'ndex2==1.2.0.*' \
     'anndata==0.5.10' 'enum34==1.1.6' 'ijson==2.3' 'joblib==0.11' 'natsort==5.2.0' 'plotly==2.4.1' 'beakerx==1.2.0' \
-    'pysolr==3.7.0' 'rpy2==2.8.5' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
+    'pysolr==3.7.0' 'rpy2==3.2.1' 'scanpy==0.4.2' 'tqdm==4.23.4' 'validators==0.12.0' 'pysam==0.15.1' 'hca==4.4.10' 'simplegeneric==0.8.1'"
 RUN echo "/home/jovyan/.local/lib/python3.6/site-packages" > /opt/conda/envs/python3.6/lib/python3.6/site-packages/conda.pth
 
 #############################################
@@ -224,7 +217,7 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'igv-jupyter==0.9.7' 'cyjupyter==0.2.0' 'ccalnoir==2.7' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' \
-    'plotly==4.1.0' 'rpy2==2.8.5' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' scanpy memory_profiler"
+    'plotly==4.1.0' 'rpy2==3.2.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' scanpy memory_profiler"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install -e git://github.com/LankyCyril/genefab.git#egg=genefab --src=/opt/conda/envs/python3.7/lib/python3.7/site-packages/"
 RUN echo "/home/jovyan/.local/lib/python3.7/site-packages" > /opt/conda/envs/python3.7/lib/python3.7/site-packages/conda.pth
