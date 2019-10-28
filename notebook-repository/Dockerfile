@@ -2,7 +2,7 @@
 
 # Pull the latest known good jupyterhub image from the official Jupyter stacks
 # Built 04-01-2019
-FROM jupyterhub/jupyterhub:0.9.6
+FROM jupyterhub/jupyterhub:1.0
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y gconf-service libasound2 libatk1.0-0 li
     libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 \
     libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 \
     libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget nano \
-    docker.io libcurl3 libcurl-openssl1.0-dev gcc python3-dev libmysqlclient-dev
+    docker.io libcurl4 curl gcc python3-dev libmysqlclient-dev
 RUN pip install awscli mysqlclient
 
 #############################################
@@ -29,7 +29,7 @@ RUN mkdir /data
 
 # Create the Python 3.6 environment
 # RUN /opt/conda/bin/conda update -y conda
-RUN /opt/conda/bin/conda create -y --name repository python=3.6 pip
+RUN /opt/conda/bin/conda create -y --name repository python=3.6 pip pycurl
 
 RUN /bin/bash -c "source activate repository && \
     pip install Django==1.10 \
@@ -40,15 +40,14 @@ RUN /bin/bash -c "source activate repository && \
                 django-crispy-forms==1.6.0 \
                 django-cors-middleware==1.3.1 \
                 pyppeteer==0.0.25 \
-                requests==2.21.0 \
-                jupyterhub==0.9.6 \
-                pycurl==7.43.0.3"
+                requests==2.22.0 \
+                jupyterhub==0.9.6"
 
 #############################################
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'notebook-repository 19.08'
+RUN echo 'notebook-repository 19.10, Updated to JupyterHub 1.0'
 
 #############################################
 ##      Add the repository webservice      ##
