@@ -47,7 +47,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'notebook-repository 19.10, Updated to JupyterHub 1.0'
+RUN echo 'notebook-repository 19.11, Fixed notebook sharing email issues'
 
 #############################################
 ##      Add the repository webservice      ##
