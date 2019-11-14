@@ -93,7 +93,7 @@ RUN chmod 755 /opt && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Updating to rpy2 3.2.1, jupyter-wysiwyg 19.10, nbtools 19.10'
+RUN echo 'Updating notebook-repository-frontend'
 
 #############################################
 ##  $NB_USER                               ##
