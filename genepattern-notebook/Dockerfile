@@ -93,7 +93,7 @@ RUN chmod 755 /opt && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Updating notebook-repository-frontend (again)'
+RUN echo '19.12, Updating igv-jupyter and Notebook Library interface'
 
 #############################################
 ##  $NB_USER                               ##
