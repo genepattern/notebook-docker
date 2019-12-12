@@ -80,6 +80,7 @@ RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('httr')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('ggplot2')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('BiocManager')" && \
+    /opt/R3.6/bin/Rscript -e "BiocManager::install('multtest'); install.packages('Seurat')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')"
 
 # Restore the environment after R compilation
@@ -90,10 +91,19 @@ RUN chmod 755 /opt && \
 
 #############################################
 ##  $NB_USER                               ##
+##      Install Globus client              ##
+#############################################
+
+RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globusconnectpersonal-latest.tgz -O /tmp/globusconnectpersonal-latest.tgz && \
+    tar -xzvf /tmp/globusconnectpersonal-latest.tgz -C /opt && \
+    mv $(find /opt -type 'd' -name 'globus*' -maxdepth 1) /opt/gcp
+
+#############################################
+##  $NB_USER                               ##
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '19.12, Updating igv-jupyter and Notebook Library interface'
+RUN echo '19.12, Updating igv-jupyter, Notebook Library, Webtour, adding Seurat and Globus'
 
 #############################################
 ##  $NB_USER                               ##
@@ -217,7 +227,7 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'igv-jupyter==0.9.8' 'cyjupyter==0.2.0' 'ccalnoir==2.7.1' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' \
-    'plotly==4.1.0' 'rpy2==3.2.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' scanpy memory_profiler"
+    'plotly==4.1.0' 'rpy2==3.2.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' scanpy memory_profiler globus_sdk globus-cli"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install -e git://github.com/LankyCyril/genefab.git@4c7ea891a260db8bcece3eb199309ed3d948b30a#egg=genefab --src=/opt/conda/envs/python3.7/lib/python3.7/site-packages/"
 RUN echo "/home/jovyan/.local/lib/python3.7/site-packages" > /opt/conda/envs/python3.7/lib/python3.7/site-packages/conda.pth
