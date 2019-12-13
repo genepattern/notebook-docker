@@ -79,8 +79,9 @@ RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('curl')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('httr')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('ggplot2')" && \
+    /opt/R3.6/bin/Rscript -e "install.packages('devtools')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('BiocManager')" && \
-    /opt/R3.6/bin/Rscript -e "BiocManager::install('multtest'); install.packages('Seurat')" && \
+    /opt/R3.6/bin/Rscript -e "BiocManager::install('multtest'); install.packages('https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_3.0.2.tar.gz', repos=NULL, type='source')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')"
 
 # Restore the environment after R compilation
@@ -146,6 +147,7 @@ RUN git clone https://github.com/genepattern/notebook-tour.git && \
     cd notebook-tour && \
     jupyter nbextension install hints && \
     jupyter nbextension enable --sys-prefix --section=tree hints/js/main && \
+    jupyter nbextension enable --sys-prefix --section=notebook hints/js/main && \
     rm -r ../notebook-tour
 
 # Install the collapsible_headings extension
