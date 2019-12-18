@@ -97,8 +97,8 @@ USER root
 
 RUN sudo apt-get install -y libopenblas-dev && \
     /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)" && \
-    /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress'))" && \
-    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap'))" && \
+    /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress', 'dplyr'))" && \
+    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap', 'scater'))" && \
     /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)"
 
 #############################################
