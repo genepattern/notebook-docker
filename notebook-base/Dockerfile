@@ -81,7 +81,6 @@ RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('ggplot2')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('devtools')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('BiocManager')" && \
-    /opt/R3.6/bin/Rscript -e "BiocManager::install('multtest'); install.packages('https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_3.0.2.tar.gz', repos=NULL, type='source')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')"
 
 # Restore the environment after R compilation
@@ -89,6 +88,19 @@ USER root
 ENV PATH=$OLD_PATH
 RUN chmod 755 /opt && \
     rm -r /opt/r-tmp
+
+#############################################
+##  ROOT                                   ##
+##      Install Seurat                     ##
+#############################################
+
+USER root
+
+RUN sudo apt-get install -y libopenblas-dev && \
+    /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)" && \
+    /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress'))" && \
+    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap'))" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)"
 
 #############################################
 ##  $NB_USER                               ##
