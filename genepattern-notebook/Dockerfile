@@ -115,7 +115,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '19.12, Updating igv-jupyter, Notebook Library, Webtour, adding Seurat and Globus'
+RUN echo '20.01, Updating nbtools'
 
 #############################################
 ##  $NB_USER                               ##
