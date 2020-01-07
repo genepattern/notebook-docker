@@ -172,6 +172,7 @@ div.cell > .output_wrapper > .out_prompt_overlay.prompt {
 	text-align: left;
 	line-height: 2.3em;
 	min-width: 40px;
+	max-width: 40px;
 }
 
 .prompt.input_prompt > bdi {
