@@ -2,3 +2,7 @@
 ![docker stars](https://img.shields.io/docker/stars/genepattern/genepattern-notebook.svg)
 
 This is a Docker image containing the full [GenePattern Notebook environment](https://genepattern-notebook.org).
+
+# Build Instructions
+> cd notebook-docker/genepattern-notebook  
+> docker build -t genepattern/genepattern-notebook:<version_number> .

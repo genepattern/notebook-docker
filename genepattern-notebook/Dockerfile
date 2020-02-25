@@ -72,7 +72,7 @@ RUN mkdir /opt/r-tmp && chmod 777 /opt/r-tmp && \
     ln -s /opt/R3.6/bin/Rscript /opt/conda/bin/Rscript
 
 # Write Rprofile
-RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.us.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/R3.6/lib/R/etc/Rprofile.site
+RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/R3.6/lib/R/etc/Rprofile.site
 
 # Install common R libraries
 RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
@@ -99,6 +99,7 @@ RUN sudo apt-get install -y libopenblas-dev && \
     /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)" && \
     /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress', 'dplyr'))" && \
     /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap', 'scater'))" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_url('https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz')" && \
     /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)"
 
 #############################################
@@ -115,7 +116,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '20.01, Updating nbtools'
+RUN echo '20.03, Updating nbtools'
 
 #############################################
 ##  $NB_USER                               ##
