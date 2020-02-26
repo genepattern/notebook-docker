@@ -24,6 +24,20 @@ RUN pip install awscli mysqlclient
 RUN mkdir /data
 
 #############################################
+##      Install conda                      ##
+#############################################
+
+RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-4.5.1-Linux-x86_64.sh -O /tmp/miniconda.sh  && \
+    echo '0c28787e3126238df24c5d4858bd0744 */tmp/miniconda.sh' | md5sum -c - && \
+    bash /tmp/miniconda.sh -f -b -p /opt/conda && \
+    /opt/conda/bin/conda install --yes -c conda-forge \
+      python=3.6 sqlalchemy tornado jinja2 traitlets requests pip pycurl \
+      nodejs configurable-http-proxy && \
+    /opt/conda/bin/pip install --upgrade pip && \
+    rm /tmp/miniconda.sh
+ENV PATH=/opt/conda/bin:$PATH
+
+#############################################
 ##      Create the repository environment  ##
 #############################################
 
@@ -47,7 +61,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'notebook-repository 19.11, Fixed notebook sharing email issues'
+RUN echo 'Updated to notebook-repository 20.02'
 
 #############################################
 ##      Add the repository webservice      ##
