@@ -4,8 +4,8 @@
 require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
     "use strict";
 
-    // Rename python3.7 kernel
-   $("[id='kernel-python3.7'] > a").text('Notebook');
+    // Rename default kernel
+   $("ul#new-menu > [id^='kernel-'] > a:visible").text('Notebook');
 
    // Decode username
     const decode_username = (u) => decodeURIComponent(u.replace(/-/g, '%'));
