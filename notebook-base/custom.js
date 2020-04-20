@@ -7,20 +7,27 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
     // Rename default kernel
    $("ul#new-menu > [id^='kernel-'] > a:visible").text('Notebook');
 
+   // Attach the workspace name, if available
+    function attach_workspace_name(username) {
+        // Get the project directory name
+        const parts = location.pathname.split('/');
+        const dir_name = parts.length >= 4 ? parts[3] : null;
+
+        // Protect against null / undefined / empty
+        if (!username || !dir_name) return;
+
+        $.ajax({
+            method: 'GET',
+            url: `/rest/projects/user/${username}/dir/${dir_name}`,
+            success: (project) => {
+                $("#tabs").append($(`<div class="gp-project">${project.name}</div>`));
+            },
+            error: () => console.log('Workspace name not available')
+        })
+    }
+
    // Decode username
     const decode_username = (u) => decodeURIComponent(u.replace(/-/g, '%'));
-
-    function cookie_to_map() {
-        const cookie_map = {};
-
-        document.cookie.split(';').forEach(function(cookie_str) {
-            const pair = cookie_str.split('=');
-            const key = pair[0].trim();
-            cookie_map[key] = pair.length > 1 ? pair[1].trim() : '';
-        });
-
-        return cookie_map;
-    }
 
     function cookie_to_map() {
         const cookie_map = {};
@@ -117,6 +124,9 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
     setTimeout(function () {
         $(".loading-screen").hide("fade");
     }, 5000);
+
+    // Add the project name
+    attach_workspace_name(username);
 
     // Bug fix for rename dialog
     $("#notebook_name").click(function() {

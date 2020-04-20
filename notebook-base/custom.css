@@ -115,3 +115,9 @@ button.btn[title='Publish...'], button.btn[title='Run all initialization cells']
 #shutdown {
     display: none;
 }
+
+.gp-project {
+    float: right;
+    font-size: 1.3em;
+    font-weight: bold;
+}
