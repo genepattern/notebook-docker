@@ -23,6 +23,7 @@ parser.add_argument('-p', '--port', type=int, default=80, help='Set the port the
 parser.add_argument('-n', '--network', type=str, default='repo', help='The name of the Docker network to run on')
 parser.add_argument('-a', '--aws', type=str, default=aws_dir, help='The location of the your AWS credentials (~/.aws)')
 parser.add_argument('-t', '--theme', type=str, default='', help='Path to theme to be mounted into the container')
+parser.add_argument('-c', '--container', type=str, default='notebook_repository', help='Name given to the container')
 
 # Parse the arguments
 args = parser.parse_args()
@@ -131,7 +132,7 @@ else:
 try:
     subprocess.Popen(f'docker run --rm \
                                   --net={args.network} \
-                                  --name=notebook_repository \
+                                  --name={args.container} \
                                   -e DATA_DIR={args.data} \
                                   -p {args.port}:80 \
                                   -v {args.data}:/data \
