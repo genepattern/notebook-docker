@@ -10,7 +10,7 @@ import argparse
 
 # Handle the --data and --port options
 parser = argparse.ArgumentParser(description='Stop the Docker container for the Notebook Repository')
-parser.add_argument('-c', '--container', type=str, default='notebook_repository', help='Name given to the container')
+parser.add_argument('-c', '--container', type=str, default='workspace', help='Name given to the container')
 
 # Parse the arguments
 args = parser.parse_args()
