@@ -195,7 +195,7 @@ RUN pip install -v cyjupyter==0.2.0 && \
 USER $NB_USER
 
 # Create the Python 3.6 environment
-RUN conda create -y --name python3.6 python=3.6 anaconda ipykernel==5.1.0
+RUN conda create -y --name python3.6 python=3.6 anaconda
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -241,7 +241,7 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'igv-jupyter==0.9.8' 'cyjupyter==0.2.0' 'ccalnoir==2.7.1' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' \
-    'plotly==4.1.0' 'plotly-orca==1.3.0' 'rpy2==3.2.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' scanpy memory_profiler globus_sdk globus-cli"
+    'plotly==4.1.0' 'orca==1.3.0' 'rpy2==3.2.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' scanpy memory_profiler globus_sdk globus-cli"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install -e git://github.com/LankyCyril/genefab.git@4c7ea891a260db8bcece3eb199309ed3d948b30a#egg=genefab --src=/opt/conda/envs/python3.7/lib/python3.7/site-packages/"
 RUN echo "/home/jovyan/.local/lib/python3.7/site-packages" > /opt/conda/envs/python3.7/lib/python3.7/site-packages/conda.pth

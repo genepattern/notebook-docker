@@ -4,15 +4,12 @@
  * Hide old kernels
  */
 
-ul#new-menu > li:not(.dropdown-header) {
-  display:none
+[id='kernel-python3.6'] {
+    display: none;
 }
 
-ul#new-menu > li:nth-child(2),
-ul#new-menu > li:nth-last-child(1),
-ul#new-menu > li:nth-last-child(2),
-ul#new-menu > li:nth-last-child(3) {
-  display:block
+[id='kernel-r3.6'] {
+    display: none;
 }
 
 
