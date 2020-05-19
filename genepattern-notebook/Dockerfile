@@ -116,7 +116,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '20.03, Updating nbtools'
+RUN echo '20.05, Updating nbtools'
 
 #############################################
 ##  $NB_USER                               ##
