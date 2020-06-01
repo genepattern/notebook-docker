@@ -92,7 +92,7 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
     // Add the help button to the header
     $("span > a.btn[href='/hub/home']").css("margin-right", "2px"); // Fix spacing
     $("#header-container").append(
-        $('<span><a href="https://genepattern-notebook.org" target="_blank" class="btn btn-default btn-sm navbar-btn pull-right" style="margin-right: 4px;">Help</a></span>')
+        $('<span><a href="https://notebook.genepattern.org" target="_blank" class="btn btn-default btn-sm navbar-btn pull-right" style="margin-right: 4px;">Help</a></span>')
     );
 
 	// Attach the loading screen

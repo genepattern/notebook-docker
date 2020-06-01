@@ -7,4 +7,4 @@ This is a base image used to build the downstream GenePattern Notebook container
 * GenePattern Notebook - Python 3.7
 * GenePattern Notebook - R 3.6
 
-For more information, see the [GenePattern Notebook website](https://genepattern-notebook.org).
+For more information, see the [GenePattern Notebook website](https://notebook.genepattern.org).
