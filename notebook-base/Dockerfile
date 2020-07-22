@@ -81,7 +81,8 @@ RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('ggplot2')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('devtools')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('BiocManager')" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')"
+    /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')" && \
+    /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)"
 
 # Restore the environment after R compilation
 USER root
@@ -97,10 +98,13 @@ RUN chmod 755 /opt && \
 USER root
 
 RUN sudo apt-get install -y libopenblas-dev && \
-    /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)" && \
-    /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress', 'dplyr'))" && \
-    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap', 'scater'))" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)"
+    /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress', 'dplyr', 'sn'))" && \
+    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'TFisher', 'multtest', 'metap', 'scater', 'AnnotationDbi', 'BiocGenerics', 'GO.db', 'pcaMethods'))" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_url('https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz')" && \
+#    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'cran/mnormt@1.5-7', dependencies=FALSE, force=TRUE)" && \
+#    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', force=TRUE)" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'hms-dbmi/pagoda2')" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'hms-dbmi/conos')"
 
 #############################################
 ##  $NB_USER                               ##
@@ -116,7 +120,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '19.12, First release of base notebook image'
+RUN echo '20.07, Updating for Notebook Workspaces 2.0'
 
 #############################################
 ##  $NB_USER                               ##

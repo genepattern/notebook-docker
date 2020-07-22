@@ -1,6 +1,6 @@
 # GenePattern Notebook with the R 3.6 kernel
 
-FROM genepattern/notebook-base:19.12
+FROM genepattern/notebook-base:20.07
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 EXPOSE 8888
 
@@ -9,7 +9,7 @@ EXPOSE 8888
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '19.12, Initial build of GenePattern Notebook, R 3.6 container'
+RUN echo '20.07, Support for Workspaces 2.0 test'
 
 #############################################
 ##  ROOT                                   ##
@@ -53,7 +53,6 @@ RUN /opt/R3.6/bin/Rscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6',
 # Remove the default Python kernel
 RUN rm -r /opt/conda/share/jupyter/kernels/python3 && \
     printf '\nc.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
-
 
 #############################################
 ##  root                                   ##
