@@ -101,6 +101,8 @@ RUN sudo apt-get install -y libopenblas-dev && \
     /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap', 'scater'))" && \
     /opt/R3.6/bin/Rscript -e "devtools::install_url('https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz')" && \
     /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)"
+RUN /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'hms-dbmi/pagoda2')" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'hms-dbmi/conos')"
 
 #############################################
 ##  $NB_USER                               ##
@@ -116,7 +118,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '20.05, Updating nbtools'
+RUN echo '20.07, Updating genepattern-python and nbtools'
 
 #############################################
 ##  $NB_USER                               ##
@@ -195,7 +197,7 @@ RUN pip install -v cyjupyter==0.2.0 && \
 USER $NB_USER
 
 # Create the Python 3.6 environment
-RUN conda create -y --name python3.6 python=3.6 anaconda
+RUN conda update conda && conda create -y --name python3.6 python=3.6 anaconda-client
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -223,12 +225,12 @@ RUN echo "/home/jovyan/.local/lib/python3.6/site-packages" > /opt/conda/envs/pyt
 USER $NB_USER
 
 # Create the Python 3.7 environment
-RUN conda create -y --name python3.7 python=3.7 anaconda ipykernel==5.1.0
+RUN conda create -y --name python3.7 python=3.7 anaconda ipykernel
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.7 && \
-    conda install -y 'tornado=5.1.1' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
+    conda install -y 'tornado' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
     'scikit-learn' 'scikit-image' 'sympy' 'cython' 'patsy' 'statsmodels' 'cloudpickle' 'dill' 'numba' \
     'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd' 'simplegeneric'"
 
