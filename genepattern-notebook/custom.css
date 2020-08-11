@@ -8,6 +8,10 @@
     display: none;
 }
 
+[id='kernel-python3.7'] {
+    display: none;
+}
+
 [id='kernel-r3.6'] {
     display: none;
 }

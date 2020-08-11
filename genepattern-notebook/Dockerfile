@@ -225,28 +225,47 @@ RUN echo "/home/jovyan/.local/lib/python3.6/site-packages" > /opt/conda/envs/pyt
 USER $NB_USER
 
 # Create the Python 3.7 environment
-RUN conda create -y --name python3.7 python=3.7 anaconda ipykernel
+RUN conda create -y --name python3.7 python=3.7 anaconda-client ipykernel
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.7 && \
-    conda install -y 'tornado' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas' 'numexpr' 'matplotlib' 'scipy' 'seaborn' \
-    'scikit-learn' 'scikit-image' 'sympy' 'cython' 'patsy' 'statsmodels' 'cloudpickle' 'dill' 'numba' \
-    'bokeh' 'sqlalchemy' 'hdf5' 'h5py' 'vincent' 'beautifulsoup4' 'protobuf' 'xlrd' 'simplegeneric'"
+    conda install -y 'tornado=6.0.4' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=1.0.5' 'numexpr=2.7.1' \
+    'matplotlib=3.3.0' 'scipy=1.5.2' 'seaborn=0.10.1' 'scikit-learn=0.23.1' 'scikit-image=0.17.2' 'sympy=1.6.1' 'cython=0.29.21' \
+    'patsy=0.5.1' 'statsmodels=0.11.1' 'cloudpickle=1.5.0' 'dill=0.3.2' 'numba=0.50.1' 'bokeh=2.1.1' 'sqlalchemy=1.3.18' \
+    'hdf5=1.10.6' 'h5py=2.10.0' 'vincent=0.4.4' 'beautifulsoup4=4.9.1' 'protobuf=3.12.3' 'xlrd=1.2.0' 'simplegeneric=0.8.1'"
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.7 && \
-    conda install -y -c conda-forge 'biopython' 'igraph' 'babel' 'louvain' 'tzlocal' "
+    conda install -y -c conda-forge 'biopython=1.77' 'igraph=0.7.1' 'babel=2.8.0' 'louvain=0.6.1' 'tzlocal=2.1' "
 RUN /bin/bash -c "source activate python3.7 && \
-    conda install -y -c bioconda 'pysam'"
+    conda install -y -c bioconda 'pysam=0.16.0.1'"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'igv-jupyter==0.9.8' 'cyjupyter==0.2.0' 'ccalnoir==2.7.1' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' \
-    'plotly==4.1.0' 'orca==1.3.0' 'rpy2==3.2.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' scanpy memory_profiler globus_sdk globus-cli"
+    'plotly==4.1.0' 'orca==1.3.0' 'rpy2==3.2.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' 'scanpy==1.5.1' \
+    'memory_profiler==0.57.0' 'globus_sdk==1.9.0' 'globus-cli==1.13.0'"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install -e git://github.com/LankyCyril/genefab.git@4c7ea891a260db8bcece3eb199309ed3d948b30a#egg=genefab --src=/opt/conda/envs/python3.7/lib/python3.7/site-packages/"
 RUN echo "/home/jovyan/.local/lib/python3.7/site-packages" > /opt/conda/envs/python3.7/lib/python3.7/site-packages/conda.pth
+
+#############################################
+##  $NB_USER                               ##
+##      Create the Python 3.8 environment  ##
+#############################################
+
+USER $NB_USER
+
+# Create the Python 3.6 environment
+RUN conda create -y --name python3.8 python=3.8 'anaconda=2020.07'
+
+# Install the GenePattern Notebook Environment packages
+# The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
+RUN /bin/bash -c "source activate python3.8 && \
+    pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
+    'igv-jupyter' 'cyjupyter' 'ccalnoir' 'cuzcatlan' 'ndex2' 'rpy2' 'hca' 'beakerx'"
+RUN echo "/home/jovyan/.local/lib/python3.8/site-packages" > /opt/conda/envs/python3.8/lib/python3.8/site-packages/conda.pth
 
 #############################################
 ##  ROOT                                   ##
@@ -258,6 +277,7 @@ USER root
 # Add the environments as Jupyter kernels
 RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'" && \
     /bin/bash -c "source activate python3.7 && python -m ipykernel install --name python3.7 --display-name 'Python 3.7'" && \
+    /bin/bash -c "source activate python3.8 && python -m ipykernel install --name python3.8 --display-name 'Python 3.8'" && \
     /opt/R3.6/bin/Rscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6', displayname = 'R 3.6')"
 
 # Remove the default Python kernel
