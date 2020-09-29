@@ -118,7 +118,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '20.07, Updating genepattern-python and nbtools'
+RUN echo '20.09.1, Updating nbtools'
 
 #############################################
 ##  $NB_USER                               ##

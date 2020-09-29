@@ -22,18 +22,6 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
         return cookie_map;
     }
 
-    function cookie_to_map() {
-        const cookie_map = {};
-
-        document.cookie.split(';').forEach(function(cookie_str) {
-            const pair = cookie_str.split('=');
-            const key = pair[0].trim();
-            cookie_map[key] = pair.length > 1 ? pair[1].trim() : '';
-        });
-
-        return cookie_map;
-    }
-
     function extract_username() {
         let username = null;
 
