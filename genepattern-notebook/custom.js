@@ -5,7 +5,7 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
     "use strict";
 
     // Rename default kernel
-   $("ul#new-menu > [id^='kernel-'] > a:visible").text('Notebook');
+   $("ul#new-menu > [id^='kernel-'] > a").text('Notebook');
 
    // Decode username
     const decode_username = (u) => decodeURIComponent(u.replace(/-/g, '%'));
