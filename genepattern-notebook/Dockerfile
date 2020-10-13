@@ -1,8 +1,8 @@
 # Dockerfile for running the GenePattern Notebook Environment
 
-# Pull the latest known good scipy notebook image from the official Jupyter stacks
-# Built 09-11-2019
-FROM jupyter/scipy-notebook:1386e2046833
+# Pull the latest known good minimal notebook image from the official Jupyter stacks
+# Built 09-30-2020
+FROM jupyter/minimal-notebook:150731d32f85
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
@@ -15,9 +15,9 @@ EXPOSE 8888
 
 USER root
 
-# Install the missing Qt4 API (used by matplotlib)
-RUN apt-get update && apt-get install -y python-qt4 apt-transport-https ca-certificates curl software-properties-common \
-    libxtst6 libssl-dev libcurl4-openssl-dev gpg build-essential python-dev default-jdk
+# Install the missing Qt4 API (used by matplotlib)  # CUT: python-qt4
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl software-properties-common python3-pyqt5 \
+    libxtst6 libssl-dev libcurl4-openssl-dev gpg build-essential python-dev default-jdk apt-utils libxml2-dev libxml2
 
 #############################################
 ##  ROOT                                   ##
@@ -98,11 +98,12 @@ USER root
 RUN sudo apt-get install -y libopenblas-dev && \
     /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)" && \
     /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress', 'dplyr'))" && \
-    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap', 'scater'))" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_url('https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz')" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)"
-RUN /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'hms-dbmi/pagoda2')" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'hms-dbmi/conos')"
+    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap', 'scater'))"
+RUN /opt/R3.6/bin/Rscript -e "devtools::install_url('https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz')" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'rstudio/d3heatmap')" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'kharchenkolab/pagoda2')" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'kharchenkolab/conos@v1.2.1')"
 
 #############################################
 ##  $NB_USER                               ##
@@ -118,7 +119,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '20.09.1, Updating nbtools'
+RUN echo '20.10, Updating to latest base image'
 
 #############################################
 ##  $NB_USER                               ##
@@ -128,10 +129,10 @@ RUN echo '20.09.1, Updating nbtools'
 USER $NB_USER
 
 # Copy the logo and favicon
-COPY ./logo.png ./favicon.ico /opt/conda/lib/python3.7/site-packages/notebook/static/base/images/
+COPY ./logo.png ./favicon.ico /opt/conda/lib/python3.8/site-packages/notebook/static/base/images/
 
 # Install the custom theme
-COPY ./custom.css ./custom.js ./theme.css ./background.jpg /opt/conda/lib/python3.7/site-packages/notebook/static/custom/
+COPY ./custom.css ./custom.js ./theme.css ./background.jpg /opt/conda/lib/python3.8/site-packages/notebook/static/custom/
 
 #############################################
 ##  ROOT                                   ##
@@ -225,12 +226,12 @@ RUN echo "/home/jovyan/.local/lib/python3.6/site-packages" > /opt/conda/envs/pyt
 USER $NB_USER
 
 # Create the Python 3.7 environment
-RUN conda create -y --name python3.7 python=3.7 anaconda-client ipykernel
+RUN conda create -y --name python3.7 python=3.7 anaconda-client ipykernel tornado ipywidgets
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.7 && \
-    conda install -y 'tornado=6.0.4' 'ipywidgets=7.2*' 'conda-forge::blas=*=openblas' 'pandas=1.0.5' 'numexpr=2.7.1' \
+    conda install -y 'conda-forge::blas=*=openblas' 'pandas=1.0.5' 'numexpr=2.7.1' \
     'matplotlib=3.3.0' 'scipy=1.5.2' 'seaborn=0.10.1' 'scikit-learn=0.23.1' 'scikit-image=0.17.2' 'sympy=1.6.1' 'cython=0.29.21' \
     'patsy=0.5.1' 'statsmodels=0.11.1' 'cloudpickle=1.5.0' 'dill=0.3.2' 'numba=0.50.1' 'bokeh=2.1.1' 'sqlalchemy=1.3.18' \
     'hdf5=1.10.6' 'h5py=2.10.0' 'vincent=0.4.4' 'beautifulsoup4=4.9.1' 'protobuf=3.12.3' 'xlrd=1.2.0' 'simplegeneric=0.8.1'"
@@ -240,12 +241,10 @@ RUN /bin/bash -c "source activate python3.7 && \
 RUN /bin/bash -c "source activate python3.7 && \
     conda install -y -c conda-forge 'biopython=1.77' 'igraph=0.7.1' 'babel=2.8.0' 'louvain=0.6.1' 'tzlocal=2.1' "
 RUN /bin/bash -c "source activate python3.7 && \
-    conda install -y -c bioconda 'pysam=0.16.0.1'"
-RUN /bin/bash -c "source activate python3.7 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
     'igv-jupyter==0.9.8' 'cyjupyter==0.2.0' 'ccalnoir==2.7.1' 'cuzcatlan==0.9.3' 'ndex2==1.2.0.*' 'py2cytoscape==0.7.0' \
     'plotly==4.1.0' 'orca==1.3.0' 'rpy2==3.2.1' 'opencv-python==4.0.0.21' 'hca==4.8.0' 'humanfriendly==4.12.1' 'scanpy==1.5.1' \
-    'memory_profiler==0.57.0' 'globus_sdk==1.9.0' 'globus-cli==1.13.0'"
+    'memory_profiler==0.57.0' 'globus_sdk==1.9.0' 'globus-cli==1.13.0' 'pysam==0.16.0.1'"
 RUN /bin/bash -c "source activate python3.7 && \
     pip install -e git://github.com/LankyCyril/genefab.git@4c7ea891a260db8bcece3eb199309ed3d948b30a#egg=genefab --src=/opt/conda/envs/python3.7/lib/python3.7/site-packages/"
 RUN echo "/home/jovyan/.local/lib/python3.7/site-packages" > /opt/conda/envs/python3.7/lib/python3.7/site-packages/conda.pth
@@ -257,8 +256,13 @@ RUN echo "/home/jovyan/.local/lib/python3.7/site-packages" > /opt/conda/envs/pyt
 
 USER $NB_USER
 
-# Create the Python 3.6 environment
-RUN conda create -y --name python3.8 python=3.8 'anaconda=2020.07'
+# Create the Python 3.8 environment
+RUN conda update conda && conda create -y --name python3.8 python=3.8 # 'anaconda=2020.07'
+RUN /bin/bash -c "source activate python3.8 && \
+    conda install -y -c conda-forge beautifulsoup4 blas bokeh cloudpickle dask dill h5py hdf5 ipykernel ipywidgets \
+        jedi jinja2 libblas libcurl matplotlib nodejs numba numexpr numpy pandas patsy pickleshare pillow pycurl \
+        requests scikit-image scikit-learn scipy seaborn sqlalchemy sqlite statsmodels sympy traitlets vincent \
+        widgetsnbextension"  ### This entire line can be replaced once conda fixes their anaconda bundle for Python 3.8
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
