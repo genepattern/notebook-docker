@@ -1,10 +1,16 @@
 # Dockerfile for running an instance of the GenePattern Notebook Repository
 
-# Pull the latest known good jupyterhub image from the official Jupyter stacks
-# Built 04-01-2019
-FROM jupyterhub/jupyterhub:1.0
+# Pull a known good jupyterhub image from the official Jupyter stacks
+# Built 01-17-2020
+FROM jupyterhub/jupyterhub:1.1
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
+
+#############################################
+##      Bug Fix for jupyterhub:1.1 image   ##
+#############################################
+
+RUN pip uninstall -y jupyterhub && pip install jupyterhub==1.1.0
 
 #############################################
 ##      System updates                     ##
@@ -14,8 +20,8 @@ RUN apt-get update && apt-get install -y gconf-service libasound2 libatk1.0-0 li
     libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 \
     libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 \
     libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget nano \
-    docker.io libcurl4 curl gcc python3-dev libmysqlclient-dev
-RUN pip install awscli mysqlclient
+    docker.io libcurl4 curl gcc python3-dev libmysqlclient-dev \
+    && pip install awscli mysqlclient
 
 #############################################
 ##      Create the data volume             ##
@@ -27,11 +33,11 @@ RUN mkdir /data
 ##      Install conda                      ##
 #############################################
 
-RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-4.5.1-Linux-x86_64.sh -O /tmp/miniconda.sh  && \
-    echo '0c28787e3126238df24c5d4858bd0744 */tmp/miniconda.sh' | md5sum -c - && \
+RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-py37_4.8.3-Linux-x86_64.sh -O /tmp/miniconda.sh  && \
+    echo '751786b92c00b1aeae3f017b781018df */tmp/miniconda.sh' | md5sum -c - && \
     bash /tmp/miniconda.sh -f -b -p /opt/conda && \
     /opt/conda/bin/conda install --yes -c conda-forge \
-      python=3.6 sqlalchemy tornado jinja2 traitlets requests pip pycurl \
+      python=3.7 sqlalchemy tornado jinja2 traitlets requests pip pycurl ruamel.yaml \
       nodejs configurable-http-proxy && \
     /opt/conda/bin/pip install --upgrade pip && \
     rm /tmp/miniconda.sh
@@ -41,9 +47,9 @@ ENV PATH=/opt/conda/bin:$PATH
 ##      Create the repository environment  ##
 #############################################
 
-# Create the Python 3.6 environment
+# Create the Python 3.7 environment
 # RUN /opt/conda/bin/conda update -y conda
-RUN /opt/conda/bin/conda create -y --name repository python=3.6 pip pycurl
+RUN /opt/conda/bin/conda create -y --name repository python=3.7 pip pycurl
 
 RUN /bin/bash -c "source activate repository && \
     pip install Django==1.10 \
@@ -55,13 +61,13 @@ RUN /bin/bash -c "source activate repository && \
                 django-cors-middleware==1.3.1 \
                 pyppeteer==0.0.25 \
                 requests==2.22.0 \
-                jupyterhub==0.9.6"
+                jupyterhub==1.1.0"
 
 #############################################
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Updated to notebook-repository 20.02'
+RUN echo 'Updated to JupyterHub 1.1, new authenticator'
 
 #############################################
 ##      Add the repository webservice      ##
@@ -96,8 +102,8 @@ RUN /bin/bash -c "source activate repository && \
 #############################################
 
 RUN pip install dockerspawner==0.11.1
-RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.6/site-packages/nbrepo
-RUN mv /srv/notebook-repository/authenticator/gpauthenticator.py /opt/conda/lib/python3.6/site-packages/
+RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.7/site-packages/nbrepo
+RUN mv /srv/notebook-repository/gpauthenticator /opt/conda/lib/python3.7/site-packages/
 
 #############################################
 ##      Add the jupyterhub_config file     ##

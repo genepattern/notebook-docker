@@ -174,3 +174,8 @@ JUPYTERHUB = True
 BASE_HUB_URL = "http://localhost"
 SCREENSHOT_USER = "xxx"
 SCREENSHOT_PASSWORD = "xxx"
+
+NOTIFICATION_EMAIL = None
+EMAIL_SERVER = 'smtp-server'
+EMAIL_USERNAME = 'username'
+EMAIL_PASSWORD = 'password'

@@ -7,7 +7,7 @@ c.JupyterHub.bind_url = 'http://:80'
 
 # Listen on all interfaces
 c.JupyterHub.hub_ip = '0.0.0.0'
-c.JupyterHub.hub_connect_ip = 'notebook_repository'
+# c.JupyterHub.hub_connect_ip = 'notebook_repository'
 
 # Configure the GenePattern Authenticator
 c.JupyterHub.authenticator_class = 'gpauthenticator.GenePatternAuthenticator'
