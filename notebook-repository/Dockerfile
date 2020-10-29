@@ -67,7 +67,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Updated to JupyterHub 1.1, new authenticator'
+RUN echo 'Added initial support for named servers'
 
 #############################################
 ##      Add the repository webservice      ##
@@ -118,7 +118,7 @@ COPY ./jupyterhub_config.py /data/
 # Add the theme assets to JupyterHub
 RUN mv /srv/notebook-repository/theme/images/* /opt/conda/share/jupyterhub/static/images/
 RUN mv /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/css/
-RUN mv /srv/notebook-repository/theme/templates/* /opt/conda/share/jupyterhub/templates/
+# RUN mv /srv/notebook-repository/theme/templates/* /opt/conda/share/jupyterhub/templates/
 
 # Import the theme
 RUN { echo '@import url("/hub/static/css/genepattern.css");'; cat /opt/conda/share/jupyterhub/static/css/style.min.css; } \

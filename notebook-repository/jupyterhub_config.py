@@ -11,7 +11,7 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 
 # Configure the GenePattern Authenticator
 c.JupyterHub.authenticator_class = 'gpauthenticator.GenePatternAuthenticator'
-c.Authenticator.admin_users = {'admin'}
+c.Authenticator.admin_users = { 'admin' }
 
 # Configure DockerSpawner
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
@@ -28,6 +28,10 @@ if 'DATA_DIR' in os.environ:
     c.DockerSpawner.volumes = {
         os.environ['DATA_DIR'] + '/users/{raw_username}': '/home/jovyan',    # Mount users directory
     }
+
+# Add the theme config
+c.JupyterHub.logo_file = '/opt/conda/share/jupyterhub/static/images/gpnb.png'
+c.JupyterHub.template_paths = ['/srv/notebook-repository/theme/templates']
 
 # Services API configuration
 c.JupyterHub.services = [
