@@ -1,6 +1,6 @@
 # GenePattern Notebook with the R 3.6 kernel
 
-FROM genepattern/notebook-base:20.07
+FROM genepattern/notebook-base:20.10
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 EXPOSE 8888
 
@@ -9,7 +9,7 @@ EXPOSE 8888
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '20.07, Support for Workspaces 2.0 test'
+RUN echo '20.07, Support for Workspaces 2.0 refactor'
 
 #############################################
 ##  ROOT                                   ##
@@ -26,12 +26,12 @@ RUN jupyter nbextension enable --sys-prefix --py nbtools && \
     jupyter nbextension enable --sys-prefix --py jupyter_wysiwyg
 
 # Enable Notebook Repository frontend
-RUN git clone https://github.com/genepattern/notebook-repository-frontend.git && \
-    cd notebook-repository-frontend && \
-    jupyter nbextension install repo && \
-    jupyter nbextension enable --sys-prefix repo/js/main && \
-    jupyter nbextension enable --sys-prefix --section=tree repo/js/main && \
-    rm -r ../notebook-repository-frontend
+#RUN git clone https://github.com/genepattern/notebook-repository-frontend.git && \
+#    cd notebook-repository-frontend && \
+#    jupyter nbextension install repo && \
+#    jupyter nbextension enable --sys-prefix repo/js/main && \
+#    jupyter nbextension enable --sys-prefix --section=tree repo/js/main && \
+#    rm -r ../notebook-repository-frontend
 
 # Enable Notebook Repository hints
 RUN git clone https://github.com/genepattern/notebook-tour.git && \

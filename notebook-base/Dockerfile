@@ -1,8 +1,8 @@
 # Base Docker image for building GenePattern Notebook containers
 
 # Pull the latest known good scipy notebook image from the official Jupyter stacks
-# Built 09-11-2019
-FROM jupyter/scipy-notebook:1386e2046833
+# Built 09-30-2020
+FROM jupyter/minimal-notebook:150731d32f85
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
@@ -16,8 +16,8 @@ EXPOSE 8888
 USER root
 
 # Install the missing Qt4 API (used by matplotlib)
-RUN apt-get update && apt-get install -y python-qt4 apt-transport-https ca-certificates curl software-properties-common \
-    libxtst6 libssl-dev libcurl4-openssl-dev gpg build-essential python-dev default-jdk
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl software-properties-common python3-pyqt5 \
+    libxtst6 libssl-dev libcurl4-openssl-dev gpg build-essential python-dev default-jdk apt-utils libxml2-dev libxml2
 
 #############################################
 ##  ROOT                                   ##
@@ -72,17 +72,15 @@ RUN mkdir /opt/r-tmp && chmod 777 /opt/r-tmp && \
     ln -s /opt/R3.6/bin/Rscript /opt/conda/bin/Rscript
 
 # Write Rprofile
-RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.us.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/R3.6/lib/R/etc/Rprofile.site
+RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/R3.6/lib/R/etc/Rprofile.site
 
 # Install common R libraries
 RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('curl')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('httr')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('ggplot2')" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('devtools')" && \
     /opt/R3.6/bin/Rscript -e "install.packages('BiocManager')" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')" && \
-    /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)"
+    /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')"
 
 # Restore the environment after R compilation
 USER root
@@ -98,13 +96,14 @@ RUN chmod 755 /opt && \
 USER root
 
 RUN sudo apt-get install -y libopenblas-dev && \
-    /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress', 'dplyr', 'sn'))" && \
-    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'TFisher', 'multtest', 'metap', 'scater', 'AnnotationDbi', 'BiocGenerics', 'GO.db', 'pcaMethods'))" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_url('https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz')" && \
-#    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'cran/mnormt@1.5-7', dependencies=FALSE, force=TRUE)" && \
-#    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', force=TRUE)" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'hms-dbmi/pagoda2')" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'hms-dbmi/conos')"
+    /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)" && \
+    /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress', 'dplyr'))" && \
+    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap', 'scater'))"
+RUN /opt/R3.6/bin/Rscript -e "devtools::install_url('https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz')" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'rstudio/d3heatmap')" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'kharchenkolab/pagoda2')" && \
+    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'kharchenkolab/conos@v1.2.1')"
 
 #############################################
 ##  $NB_USER                               ##
@@ -120,7 +119,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '20.07, Updating for Notebook Workspaces 2.0'
+RUN echo '20.10, Updating to latest base image'
 
 #############################################
 ##  $NB_USER                               ##
@@ -130,10 +129,10 @@ RUN echo '20.07, Updating for Notebook Workspaces 2.0'
 USER $NB_USER
 
 # Copy the logo and favicon
-COPY ./logo.png ./favicon.ico /opt/conda/lib/python3.7/site-packages/notebook/static/base/images/
+COPY ./logo.png ./favicon.ico /opt/conda/lib/python3.8/site-packages/notebook/static/base/images/
 
 # Install the custom theme
-COPY ./custom.css ./custom.js ./theme.css ./background.jpg /opt/conda/lib/python3.7/site-packages/notebook/static/custom/
+COPY ./custom.css ./custom.js ./theme.css ./background.jpg /opt/conda/lib/python3.8/site-packages/notebook/static/custom/
 
 #############################################
 ##  ROOT                                   ##
@@ -143,7 +142,10 @@ COPY ./custom.css ./custom.js ./theme.css ./background.jpg /opt/conda/lib/python
 USER root
 
 # Install the collapsible_headings extension
-RUN mkdir /opt/conda/share/jupyter/nbextensions/collapsible_headings && \
+RUN mkdir /opt/conda/share/jupyter/nbextensions && \
+    mkdir /opt/conda/share/jupyter/nbextensions/collapsible_headings && \
+    mkdir /opt/conda/etc/jupyter/nbconfig && \
+    mkdir /opt/conda/etc/jupyter/nbconfig/notebook.d && \
     wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.js -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.js && \
     wget https://github.com/ipython-contrib/jupyter_contrib_nbextensions/raw/master/src/jupyter_contrib_nbextensions/nbextensions/collapsible_headings/main.css -O /opt/conda/share/jupyter/nbextensions/collapsible_headings/main.css && \
     echo '{"load_extensions": {"collapsible_headings/main": true}}' > /opt/conda/etc/jupyter/nbconfig/notebook.d/collapsible_headings.json
