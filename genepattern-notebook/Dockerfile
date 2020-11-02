@@ -190,6 +190,10 @@ RUN pip install -v igv-jupyter==0.9.8 && \
 RUN pip install -v cyjupyter==0.2.0 && \
     jupyter nbextension enable --sys-prefix --py cyjupyter
 
+# Install the qgrid extension
+RUN pip install qgrid && \
+    jupyter nbextension enable --sys-prefix --py qgrid
+
 #############################################
 ##  $NB_USER                               ##
 ##      Create the Python 3.6 environment  ##
@@ -268,7 +272,7 @@ RUN /bin/bash -c "source activate python3.8 && \
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
 RUN /bin/bash -c "source activate python3.8 && \
     pip install nbtools genepattern-python genepattern-notebook jupyter_wysiwyg \
-    'igv-jupyter' 'cyjupyter' 'ccalnoir' 'cuzcatlan' 'ndex2' 'rpy2' 'hca' 'beakerx'"
+    'igv-jupyter' 'cyjupyter' 'ccalnoir' 'cuzcatlan' 'ndex2' 'rpy2' 'hca' 'beakerx' 'qgrid'"
 RUN echo "/home/jovyan/.local/lib/python3.8/site-packages" > /opt/conda/envs/python3.8/lib/python3.8/site-packages/conda.pth
 
 #############################################
