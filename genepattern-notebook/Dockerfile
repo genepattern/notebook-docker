@@ -97,10 +97,8 @@ USER root
 
 RUN sudo apt-get install -y libopenblas-dev && \
     /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)" && \
-    /opt/R3.6/bin/Rscript -e "install.packages(c('igraph', 'devtools', 'ape', 'cowplot', 'fitdistrplus', 'future', 'future.apply', 'ggrepel', 'ggridges', 'ica', 'irlba', 'lmtest', 'pbapply', 'plotly', 'png', 'RANN', 'reticulate', 'ROCR', 'rsvd', 'Rtsne', 'sctransform', 'SDMTools', 'tsne', 'RcppEigen', 'RcppProgress', 'dplyr'))" && \
-    /opt/R3.6/bin/Rscript -e "BiocManager::install(c('GenomeInfoDbData', 'HSMMSingleCell', 'multtest', 'metap', 'scater'))"
-RUN /opt/R3.6/bin/Rscript -e "devtools::install_url('https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz')" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'satijalab/seurat@v3.0.2', dependencies=FALSE, force=TRUE)" && \
+    /opt/R3.6/bin/Rscript -e "install.packages('devtools')" && \
+    /opt/R3.6/bin/Rscript -e "BiocManager::install('Seurat')" && \
     /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'rstudio/d3heatmap')" && \
     /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'kharchenkolab/pagoda2')" && \
     /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'kharchenkolab/conos@v1.2.1')"
@@ -202,7 +200,7 @@ RUN pip install qgrid && \
 USER $NB_USER
 
 # Create the Python 3.6 environment
-RUN conda update conda && conda create -y --name python3.6 python=3.6 anaconda-client
+RUN conda update conda && conda create -y --prefix /opt/conda/envs/python3.6 python=3.6 anaconda-client
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -230,7 +228,7 @@ RUN echo "/home/jovyan/.local/lib/python3.6/site-packages" > /opt/conda/envs/pyt
 USER $NB_USER
 
 # Create the Python 3.7 environment
-RUN conda create -y --name python3.7 python=3.7 anaconda-client ipykernel tornado ipywidgets
+RUN conda create -y --prefix /opt/conda/envs/python3.7 python=3.7 anaconda-client ipykernel tornado ipywidgets
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -261,7 +259,7 @@ RUN echo "/home/jovyan/.local/lib/python3.7/site-packages" > /opt/conda/envs/pyt
 USER $NB_USER
 
 # Create the Python 3.8 environment
-RUN conda update conda && conda create -y --name python3.8 python=3.8 # 'anaconda=2020.07'
+RUN conda update conda && conda create -y --prefix /opt/conda/envs/python3.8 python=3.8 # 'anaconda=2020.07'
 RUN /bin/bash -c "source activate python3.8 && \
     conda install -y -c conda-forge beautifulsoup4 blas bokeh cloudpickle dask dill h5py hdf5 ipykernel ipywidgets \
         jedi jinja2 libblas libcurl matplotlib nodejs numba numexpr numpy pandas patsy pickleshare pillow pycurl \
