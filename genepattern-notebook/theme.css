@@ -341,6 +341,14 @@ div.nbtools-uibuilder-footer {
 	top: 40px;
 }
 
+.gp-project {
+	color: white;
+	padding-left: 30px;
+	font-size: 20px;
+	line-height: 36px;
+	position: absolute;
+}
+
 /* FILES PAGE */
 
 #tab_content {
