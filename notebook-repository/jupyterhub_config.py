@@ -49,6 +49,16 @@ c.JupyterHub.services = [
     }
 ]
 
+# Enable CORS
+origin = '*'
+c.Spawner.args = [f'--NotebookApp.allow_origin={origin} --NotebookApp.allow_credentials=True']
+c.JupyterHub.tornado_settings = {
+    'headers': {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Credentials': 'true',
+    },
+}
+
 # Connect to the database in /data
 c.JupyterHub.db_url = '/data/jupyterhub.sqlite'
 
