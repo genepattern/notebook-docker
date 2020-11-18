@@ -25,6 +25,7 @@ c.DockerSpawner.debug = True
 
 # Mount the user's directory in the singleuser containers
 if 'DATA_DIR' in os.environ:
+    c.DockerSpawner.pre_spawn_hook = lambda spawner: os.makedirs(os.path.join(os.environ['DATA_DIR'], 'users', spawner.user.name, spawner.name), 0o777, exist_ok=True)
     c.DockerSpawner.volumes = {
         os.environ['DATA_DIR'] + '/users/{raw_username}': '/home/jovyan',    # Mount users directory
     }

@@ -67,7 +67,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Added initial support for named servers'
+RUN echo 'Added initial support for named servers, fixes'
 
 #############################################
 ##      Add the repository webservice      ##
@@ -116,8 +116,8 @@ COPY ./jupyterhub_config.py /data/
 #############################################
 
 # Add the theme assets to JupyterHub
-RUN mv /srv/notebook-repository/theme/images/* /opt/conda/share/jupyterhub/static/images/
-RUN mv /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/css/
+RUN cp /srv/notebook-repository/theme/images/* /opt/conda/share/jupyterhub/static/images/
+RUN cp /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/css/
 # RUN mv /srv/notebook-repository/theme/templates/* /opt/conda/share/jupyterhub/templates/
 
 # Import the theme
