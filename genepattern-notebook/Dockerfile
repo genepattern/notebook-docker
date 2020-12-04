@@ -333,7 +333,12 @@ RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --nam
 RUN rm -r /opt/conda/share/jupyter/kernels/python3 && \
     printf '\nc.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
 
-#############################################
+########## JTL add CoGAPS, done here to avoid a rebuild that takes hours
+USER root
+RUN /opt/conda/bin/Rscript -e "BiocManager::install(c('CoGAPS', 'ComplexHeatmap'))"
+RUN /opt/conda/bin/Rscript -e "BiocManager::install(c('DESeq2'))"
+
+
 ##  root                                   ##
 ##      Clean up build environment         ##
 #############################################
