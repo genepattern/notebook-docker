@@ -298,11 +298,15 @@ USER $NB_USER
 #RUN conda update conda && conda create -y --prefix /opt/conda/envs/python3.8 python=3.8 # 'anaconda=2020.07'
 RUN conda create -y --prefix /opt/conda/envs/python3.8 python=3.8 # 'anaconda=2020.07'
 
-RUN /bin/bash -c "source activate python3.8 && \
-    conda install -y -c conda-forge beautifulsoup4 blas bokeh cloudpickle dask dill h5py hdf5 ipykernel ipywidgets \
-        jedi jinja2 libblas libcurl matplotlib nodejs numba numexpr numpy pandas patsy pickleshare pillow pycurl \
-        requests scikit-image scikit-learn scipy seaborn sqlalchemy sqlite statsmodels sympy traitlets vincent \
-        widgetsnbextension"  ### This entire line can be replaced once conda fixes their anaconda bundle for Python 3.8
+
+#########################  JTL This following line fails.  is the conda 3.8 OK now so we can skip it? ##########
+#RUN /bin/bash -c "source activate python3.8 && \
+#    conda install -y -c conda-forge beautifulsoup4 blas bokeh cloudpickle dask dill h5py hdf5 ipykernel ipywidgets \
+#        jedi jinja2 libblas libcurl matplotlib nodejs numba numexpr numpy pandas patsy pickleshare pillow pycurl \
+#        requests scikit-image scikit-learn scipy seaborn sqlalchemy sqlite statsmodels sympy traitlets vincent \
+#        widgetsnbextension"  ### This entire line can be replaced once conda fixes their anaconda bundle for Python 3.8
+RUN /bin/bash -c "source activate python3.8"
+
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -322,7 +326,7 @@ USER root
 RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'" && \
     /bin/bash -c "source activate python3.7 && python -m ipykernel install --name python3.7 --display-name 'Python 3.7'" && \
     /bin/bash -c "source activate python3.8 && python -m ipykernel install --name python3.8 --display-name 'Python 3.8'" && \
-    /opt/R3.6/bin/Rscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6', displayname = 'R 3.6')"
+    /opt/conda/bin/Rscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6', displayname = 'R 3.6')"
 
 # Remove the default Python kernel
 RUN rm -r /opt/conda/share/jupyter/kernels/python3 && \
