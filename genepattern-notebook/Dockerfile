@@ -338,7 +338,8 @@ USER root
 RUN /opt/conda/bin/Rscript -e "BiocManager::install(c('CoGAPS', 'ComplexHeatmap'))"
 RUN /opt/conda/bin/Rscript -e "BiocManager::install(c('DESeq2'))"
 
-RUN conda install --update-deps -y bioconductor-deseq2=1.24.0
+RUN conda install --update-deps -y bioconductor-deseq2=1.26.0 bioconductor-summarizedexperiment=1.16.0
+# RUN conda install -q --no-deps bioconductor-summarizedexperiment=1.16.0
 
 ##  root                                   ##
 ##      Clean up build environment         ##
