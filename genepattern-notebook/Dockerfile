@@ -316,6 +316,15 @@ RUN /bin/bash -c "source activate python3.8 && \
     'igv-jupyter' 'cyjupyter' 'ccalnoir' 'cuzcatlan' 'ndex2' 'rpy2' 'hca' 'beakerx' 'qgrid'"
 RUN echo "/home/jovyan/.local/lib/python3.8/site-packages" > /opt/conda/envs/python3.8/lib/python3.8/site-packages/conda.pth
 
+########## JTL add CoGAPS, done here to avoid a rebuild that takes hours
+
+USER root
+
+RUN /opt/conda/bin/Rscript -e "BiocManager::install(c('CoGAPS', 'ComplexHeatmap'))"
+RUN /opt/conda/bin/Rscript -e "BiocManager::install(c('DESeq2'))"
+
+RUN conda install --update-deps -y bioconductor-deseq2=1.24.0
+
 #############################################
 ##  ROOT                                   ##
 ##      Configure Jupyter kernels          ##
@@ -333,13 +342,7 @@ RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --nam
 RUN rm -r /opt/conda/share/jupyter/kernels/python3 && \
     printf '\nc.KernelSpecManager.ensure_native_kernel = False' >> /etc/jupyter/jupyter_notebook_config.py
 
-########## JTL add CoGAPS, done here to avoid a rebuild that takes hours
-USER root
-RUN /opt/conda/bin/Rscript -e "BiocManager::install(c('CoGAPS', 'ComplexHeatmap'))"
-RUN /opt/conda/bin/Rscript -e "BiocManager::install(c('DESeq2'))"
-
-RUN conda install --update-deps -y bioconductor-deseq2=1.24.0
-
+#############################################
 ##  root                                   ##
 ##      Clean up build environment         ##
 #############################################
