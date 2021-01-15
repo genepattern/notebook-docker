@@ -59,6 +59,7 @@ RUN /bin/bash -c "source activate repository && \
                 django-filter==0.14.0 \
                 django-crispy-forms==1.6.0 \
                 django-cors-middleware==1.3.1 \
+                pyee==6.0.0 \
                 pyppeteer==0.0.25 \
                 requests==2.22.0 \
                 jupyterhub==1.1.0"
@@ -67,7 +68,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Added initial support for named servers, fixes'
+RUN echo 'Another authenticator fix'
 
 #############################################
 ##      Add the repository webservice      ##
@@ -123,6 +124,13 @@ RUN cp /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/c
 # Import the theme
 RUN { echo '@import url("/hub/static/css/genepattern.css");'; cat /opt/conda/share/jupyterhub/static/css/style.min.css; } \
     > /tmp/style.min.css && mv /tmp/style.min.css /opt/conda/share/jupyterhub/static/css/style.min.css
+
+#############################################
+##  $NB_USER                               ##
+##      Enable nano and vi                 ##
+#############################################
+
+ENV TERM xterm
 
 #############################################
 ##      Start JupyterHub                   ##
