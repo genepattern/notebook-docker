@@ -349,6 +349,10 @@ div.nbtools-uibuilder-footer {
 	position: absolute;
 }
 
+.gp-project > a {
+	color: white;
+}
+
 /* FILES PAGE */
 
 #tab_content {

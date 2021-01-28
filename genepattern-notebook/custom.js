@@ -19,7 +19,10 @@ require(['base/js/namespace', 'jquery'], function(Jupyter, $) {
             success: (user) => {
 				user = JSON.parse(user);
 				if (user.projects) user.projects.forEach(project => {
-					if (dir_name === project.name) $("#header").find(".flex-spacer").html($(`<p class="gp-project">${project.name}</p>`));
+					if (dir_name === project.name)
+					    $("#header").find(".flex-spacer").html(
+					        $(`<p class="gp-project"><a href="/hub/home" target="_blank">Projects</a> &raquo; ${project.metadata.name}</p>`)
+                        );
                 });
             },
             error: () => console.log('Workspace name not available')
