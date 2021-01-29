@@ -68,7 +68,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo 'Another authenticator fix'
+RUN echo 'January 29, testing fixes'
 
 #############################################
 ##      Add the repository webservice      ##
@@ -119,6 +119,7 @@ COPY ./jupyterhub_config.py /data/
 # Add the theme assets to JupyterHub
 RUN cp /srv/notebook-repository/theme/images/* /opt/conda/share/jupyterhub/static/images/
 RUN cp /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/css/
+RUN cp /srv/notebook-repository/theme/js/* /opt/conda/share/jupyterhub/static/js/
 # RUN mv /srv/notebook-repository/theme/templates/* /opt/conda/share/jupyterhub/templates/
 
 # Import the theme
