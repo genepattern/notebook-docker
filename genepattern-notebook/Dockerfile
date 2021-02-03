@@ -117,7 +117,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '20.10, Updating to latest base image'
+RUN echo '21.02, Notebook project fixes'
 
 #############################################
 ##  $NB_USER                               ##
@@ -265,7 +265,7 @@ RUN /bin/bash -c "source activate python3.8 && \
         jedi jinja2 libblas libcurl matplotlib nodejs numba numexpr numpy pandas patsy pickleshare pillow pycurl \
         requests scikit-image scikit-learn scipy seaborn sqlalchemy sqlite statsmodels sympy traitlets vincent \
         widgetsnbextension"  ### This entire line can be replaced once conda fixes their anaconda bundle for Python 3.8
-RUN /bin/bash -c "source activate python3.8 && conda install openpyxl"
+RUN /bin/bash -c "source activate python3.8 && conda install plotly openpyxl"
 
 # Install the GenePattern Notebook Environment packages
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
