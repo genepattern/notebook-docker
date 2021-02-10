@@ -2,7 +2,11 @@
 
 # Pull the latest known good minimal notebook image from the official Jupyter stacks
 # Built 09-30-2020
-FROM jupyter/minimal-notebook:150731d32f85
+#FROM jupyter/minimal-notebook:150731d32f85
+
+# JTL latest image on 12/3/20
+FROM jupyter/minimal-notebook:5cfa60996e84
+
 
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
@@ -46,67 +50,37 @@ RUN gpasswd -a $NB_USER docker && \
 
 USER root
 
-# Install R dev dependencies
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 && \
-    add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/' && \
-    gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9 && \
-    gpg -a --export E084DAB9 | sudo apt-key add - && \
-    apt-get update && apt-get install -y r-base-dev         libcairo2-dev libxt-dev xvfb
-
-# Set up the environment for R compilation (take conda off the PATH, it screws up compiling R)
-ENV OLD_PATH=$PATH
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-RUN chmod 777 /opt
-USER $NB_USER
-
-# Download, configure, compile and install R
-RUN mkdir /opt/r-tmp && chmod 777 /opt/r-tmp && \
-    cd /opt/r-tmp && \
-    curl -O http://cran.r-project.org/src/base/R-3/R-3.6.1.tar.gz && \
-    tar xvf R-3.6.1.tar.gz && \
-    cd R-3.6.1 && \
-    ./configure LIBnn=lib --with-x --with-readline --prefix=/opt/R3.6 --enable-R-shlib --with-cairo --with-libpng --with-blas --with-lapack && \
-    make && \
-    make install && \
-    ln -s /opt/R3.6/bin/R /opt/conda/bin/R && \
-    ln -s /opt/R3.6/bin/Rscript /opt/conda/bin/Rscript
+RUN apt-get install -y libudunits2-dev libopenblas-dev libxt-dev
+RUN conda config --add channels defaults && \
+    conda config --add channels bioconda && \
+    conda config --add channels conda-forge && \
+    conda install --update-deps -y r-monocle3=0.2.1 r-seurat=3.0.2 r-getopt=1.20.3 r-optparse=1.6.4 r-dplyr=0.8.0.1
 
 # Write Rprofile
-RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/R3.6/lib/R/etc/Rprofile.site
+RUN printf 'options(install.packages.compile.from.source = "always")\noptions(repos = "http://cran.r-project.org")\noptions(bitmapType="cairo")\n' > /opt/conda/lib/R/etc/Rprofile.site
 
 # Install common R libraries
-RUN /opt/R3.6/bin/Rscript -e "install.packages('openssl')" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('curl')" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('httr')" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('ggplot2')" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('BiocManager')" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('IRkernel')"
+RUN /opt/conda/bin/Rscript -e "install.packages('openssl')" && \
+    /opt/conda/bin/Rscript -e "install.packages('curl')" && \
+    /opt/conda/bin/Rscript -e "install.packages('httr')" && \
+    /opt/conda/bin/Rscript -e "install.packages('ggplot2')" && \
+    /opt/conda/bin/Rscript -e "install.packages('BiocManager')" && \
+    /opt/conda/bin/Rscript -e "install.packages('IRkernel')" && \
+    /opt/conda/bin/Rscript -e "install.packages(c('Matrix', 'stringi'))" && \
+    conda install --update-deps -y bioconductor-deseq2=1.26.0 bioconductor-summarizedexperiment=1.16.0 && \
+    /opt/conda/bin/Rscript -e "BiocManager::install(c('CoGAPS', 'ComplexHeatmap'))" && \
+    /opt/conda/bin/Rscript -e "BiocManager::install(c('DESeq2'))"
 
-# Restore the environment after R compilation
-USER root
-ENV PATH=$OLD_PATH
-RUN chmod 755 /opt && \
-    rm -r /opt/r-tmp
-
-#############################################
-##  ROOT                                   ##
-##      Install Seurat                     ##
-#############################################
-
-USER root
-
-RUN sudo apt-get install -y libopenblas-dev && \
-    /opt/R3.6/bin/Rscript -e "setRepositories(ind = 1:2)" && \
-    /opt/R3.6/bin/Rscript -e "install.packages('devtools')" && \
-    /opt/R3.6/bin/Rscript -e "BiocManager::install('Seurat')" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'rstudio/d3heatmap')" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'kharchenkolab/pagoda2')" && \
-    /opt/R3.6/bin/Rscript -e "devtools::install_github(repo = 'kharchenkolab/conos@v1.2.1')"
+RUN chmod 777 /opt
 
 #############################################
 ##  $NB_USER                               ##
 ##      Install Globus client              ##
 #############################################
+
+USER $NB_USER
+
+RUN mkdir -p /opt/gcp
 
 RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globusconnectpersonal-latest.tgz -O /tmp/globusconnectpersonal-latest.tgz && \
     tar -xzvf /tmp/globusconnectpersonal-latest.tgz -C /opt && \
@@ -117,7 +91,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '21.02, Notebook project fixes'
+RUN echo '21.02, Updating to base build'
 
 #############################################
 ##  $NB_USER                               ##
@@ -199,8 +173,8 @@ RUN pip install qgrid && \
 
 USER $NB_USER
 
-# Create the Python 3.6 environment
-RUN conda update conda && conda create -y --prefix /opt/conda/envs/python3.6 python=3.6 anaconda-client
+RUN conda create -y --prefix /opt/conda/envs/python3.6 python=3.6 anaconda-client
+
 
 # Add the basic scipy packages to environment (copied from jupyter/scipy-notebook)
 # The unusual /bin/bash ... && ... call is necessary because weird interactions between conda and docker
@@ -258,8 +232,11 @@ RUN echo "/home/jovyan/.local/lib/python3.7/site-packages" > /opt/conda/envs/pyt
 
 USER $NB_USER
 
+# ########################### JTL remove the conda update conda which is failing #########################
 # Create the Python 3.8 environment
-RUN conda update conda && conda create -y --prefix /opt/conda/envs/python3.8 python=3.8 # 'anaconda=2020.07'
+#RUN conda update conda && conda create -y --prefix /opt/conda/envs/python3.8 python=3.8 # 'anaconda=2020.07'
+RUN conda create -y --prefix /opt/conda/envs/python3.8 python=3.8 # 'anaconda=2020.07'
+
 RUN /bin/bash -c "source activate python3.8 && \
     conda install -y -c conda-forge beautifulsoup4 blas bokeh cloudpickle dask dill h5py hdf5 ipykernel ipywidgets \
         jedi jinja2 libblas libcurl matplotlib nodejs numba numexpr numpy pandas patsy pickleshare pillow pycurl \
@@ -285,7 +262,7 @@ USER root
 RUN /bin/bash -c "source activate python3.6 && python -m ipykernel install --name python3.6 --display-name 'Python 3.6'" && \
     /bin/bash -c "source activate python3.7 && python -m ipykernel install --name python3.7 --display-name 'Python 3.7'" && \
     /bin/bash -c "source activate python3.8 && python -m ipykernel install --name python3.8 --display-name 'Python 3.8'" && \
-    /opt/R3.6/bin/Rscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6', displayname = 'R 3.6')"
+    /opt/conda/bin/Rscript -e "IRkernel::installspec(user = FALSE, name = 'r3.6', displayname = 'R 3.6')"
 
 # Remove the default Python kernel
 RUN rm -r /opt/conda/share/jupyter/kernels/python3 && \
