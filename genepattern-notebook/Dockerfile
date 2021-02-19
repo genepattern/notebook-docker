@@ -91,7 +91,7 @@ RUN wget https://downloads.globus.org/globus-connect-personal/linux/stable/globu
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '21.02, Updating to base build'
+RUN echo '21.02.1, nbtools 21.02 update'
 
 #############################################
 ##  $NB_USER                               ##
