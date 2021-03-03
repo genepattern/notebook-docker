@@ -68,7 +68,7 @@ RUN /bin/bash -c "source activate repository && \
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '21.02.1, Notebook project fix, part 2'
+RUN echo '21.03, More projects fixes'
 
 #############################################
 ##      Add the repository webservice      ##
