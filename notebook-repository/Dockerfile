@@ -44,31 +44,10 @@ RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-py37_4.8.3-Linux-x86_
 ENV PATH=/opt/conda/bin:$PATH
 
 #############################################
-##      Create the repository environment  ##
-#############################################
-
-# Create the Python 3.7 environment
-# RUN /opt/conda/bin/conda update -y conda
-RUN /opt/conda/bin/conda create -y --name repository python=3.7 pip pycurl
-
-RUN /bin/bash -c "source activate repository && \
-    pip install Django==1.10 \
-                markdown==2.6.6 \
-                mysqlclient==1.4.2.post1 \
-                djangorestframework==3.4.4 \
-                django-filter==0.14.0 \
-                django-crispy-forms==1.6.0 \
-                django-cors-middleware==1.3.1 \
-                pyee==6.0.0 \
-                pyppeteer==0.0.25 \
-                requests==2.22.0 \
-                jupyterhub==1.1.0"
-
-#############################################
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '21.03, More projects fixes'
+RUN echo '21.04.2, Project sharing'
 
 #############################################
 ##      Add the repository webservice      ##
@@ -80,23 +59,14 @@ RUN git clone https://github.com/genepattern/notebook-repository.git /srv/notebo
 ##      Configure the repository           ##
 #############################################
 
-# Add the repository webservice settings
-COPY ./settings.py /data
-RUN rm /srv/notebook-repository/nbrepo/settings.py
-RUN ln -s /data/settings.py /srv/notebook-repository/nbrepo/settings.py
+# Add to the PYTHONPATH
+RUN cp -r /srv/notebook-repository/projects /opt/conda/lib/python3.7/site-packages/
 
-# Create subdirectories in data directory
+# Create subdirectories in the data directory
 RUN mkdir /data/repository
 RUN mkdir /data/users
 RUN mkdir /data/shared
 RUN mkdir /data/defaults
-
-RUN /bin/bash -c "source activate repository && \
-    /srv/notebook-repository/manage.py makemigrations"
-RUN /bin/bash -c "source activate repository && \
-    /srv/notebook-repository/manage.py migrate --run-syncdb"
-RUN /bin/bash -c "source activate repository && \
-    /srv/notebook-repository/manage.py collectstatic --noinput"
 
 #############################################
 ##      Install Authenticator & Spawner    ##
@@ -107,10 +77,11 @@ RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.7/site-packages
 RUN mv /srv/notebook-repository/gpauthenticator /opt/conda/lib/python3.7/site-packages/
 
 #############################################
-##      Add the jupyterhub_config file     ##
+##      Add the config files               ##
 #############################################
 
 COPY ./jupyterhub_config.py /data/
+COPY ./projects_config.py /data/
 
 #############################################
 ##      Add the GenePattern theme          ##
@@ -120,7 +91,6 @@ COPY ./jupyterhub_config.py /data/
 RUN cp /srv/notebook-repository/theme/images/* /opt/conda/share/jupyterhub/static/images/
 RUN cp /srv/notebook-repository/theme/css/* /opt/conda/share/jupyterhub/static/css/
 RUN cp /srv/notebook-repository/theme/js/* /opt/conda/share/jupyterhub/static/js/
-# RUN mv /srv/notebook-repository/theme/templates/* /opt/conda/share/jupyterhub/templates/
 
 # Import the theme
 RUN { echo '@import url("/hub/static/css/genepattern.css");'; cat /opt/conda/share/jupyterhub/static/css/style.min.css; } \
