@@ -47,7 +47,7 @@ ENV PATH=/opt/conda/bin:$PATH
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '21.04.2, Project sharing'
+`RUN echo '21.07, Sharing and publishing bug fixes'
 
 #############################################
 ##      Add the repository webservice      ##
@@ -72,7 +72,7 @@ RUN mkdir /data/defaults
 ##      Install Authenticator & Spawner    ##
 #############################################
 
-RUN pip install dockerspawner==0.11.1
+RUN pip install dockerspawner==12.0.0
 RUN ln -s /srv/notebook-repository/nbrepo /opt/conda/lib/python3.7/site-packages/nbrepo
 RUN mv /srv/notebook-repository/gpauthenticator /opt/conda/lib/python3.7/site-packages/
 
