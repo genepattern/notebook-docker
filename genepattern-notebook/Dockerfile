@@ -7,10 +7,35 @@
 # JTL latest image on 12/3/20
 FROM jupyter/minimal-notebook:5cfa60996e84
 
-
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
 EXPOSE 8888
+
+##############################################
+###  root and $NB_USER                      ##
+###      Patch Update                       ##
+##############################################
+#
+#FROM genepattern/genepattern-notebook:21.07
+#
+#USER root
+#
+#RUN /bin/bash -c "pip install --upgrade --force-reinstall --no-deps nbtools" && \
+#    /bin/bash -c "pip install --upgrade --force-reinstall --no-deps genepattern-notebook"
+#
+#USER $NB_USER
+#
+#RUN /bin/bash -c "source activate python3.6 && pip install --upgrade --force-reinstall genepattern-python" && \
+#    /bin/bash -c "source activate python3.7 && pip install --upgrade --force-reinstall genepattern-python" && \
+#    /bin/bash -c "source activate python3.8 && pip install --upgrade --force-reinstall genepattern-python" && \
+#    /bin/bash -c "source activate python3.6 && pip install --upgrade --force-reinstall --no-deps nbtools" && \
+#    /bin/bash -c "source activate python3.7 && pip install --upgrade --force-reinstall --no-deps nbtools" && \
+#    /bin/bash -c "source activate python3.8 && pip install --upgrade --force-reinstall --no-deps nbtools" && \
+#    /bin/bash -c "source activate python3.6 && pip install --upgrade --force-reinstall --no-deps genepattern-notebook" && \
+#    /bin/bash -c "source activate python3.7 && pip install --upgrade --force-reinstall --no-deps genepattern-notebook" && \
+#    /bin/bash -c "source activate python3.8 && pip install --upgrade --force-reinstall --no-deps genepattern-notebook"
+#
+#ENV TERM xterm
 
 #############################################
 ##  ROOT                                   ##
