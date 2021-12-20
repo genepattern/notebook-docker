@@ -14,7 +14,7 @@ EXPOSE 8888
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '21.06, initial version'
+RUN echo '21.12, nbtools, genepattern-notebook & genepattern-python updates'
 
 #############################################
 ##  $NB_USER                               ##
