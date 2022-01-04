@@ -7,12 +7,6 @@ FROM jupyterhub/jupyterhub:1.1
 MAINTAINER Thorin Tabor <tmtabor@cloud.ucsd.edu>
 
 #############################################
-##      Bug Fix for jupyterhub:1.1 image   ##
-#############################################
-
-RUN pip uninstall -y jupyterhub && pip install jupyterhub==1.1.0
-
-#############################################
 ##      System updates                     ##
 #############################################
 
@@ -37,7 +31,7 @@ RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-py37_4.8.3-Linux-x86_
     echo '751786b92c00b1aeae3f017b781018df */tmp/miniconda.sh' | md5sum -c - && \
     bash /tmp/miniconda.sh -f -b -p /opt/conda && \
     /opt/conda/bin/conda install --yes -c conda-forge \
-      python=3.7 sqlalchemy tornado jinja2 traitlets requests pip pycurl ruamel.yaml \
+      python=3.7 sqlalchemy tornado jinja2 traitlets requests pip pycurl ruamel.yaml jupyterhub=1.1.0 \
       nodejs configurable-http-proxy && \
     /opt/conda/bin/pip install --upgrade pip && \
     rm /tmp/miniconda.sh
@@ -47,7 +41,7 @@ ENV PATH=/opt/conda/bin:$PATH
 ##      Force builds with new releases     ##
 #############################################
 
-`RUN echo '21.07, Sharing and publishing bug fixes'
+RUN echo '22.01, Tornado async fix'
 
 #############################################
 ##      Add the repository webservice      ##
