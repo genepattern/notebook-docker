@@ -1,5 +1,5 @@
 import os
-from projects.hub import UserHandler, PreviewHandler, pre_spawn_hook
+from projects.hub import UserHandler, PreviewHandler, StatsHandler, pre_spawn_hook, spawner_escape
 
 c = get_config()
 
@@ -19,11 +19,12 @@ c.Authenticator.admin_users = ['admin']
 # Configure DockerSpawner
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.DockerSpawner.host_ip = '0.0.0.0'
-c.DockerSpawner.image = 'genepattern/genepattern-notebook:21.03'
+c.DockerSpawner.image = 'genepattern/notebook-python39'
 c.DockerSpawner.image_whitelist = {
-    'Legacy': 'genepattern/genepattern-notebook:21.03',
-    'R 3.6': 'genepattern/notebook-r36:20.10'
+    'Python 3.9': 'genepattern/notebook-python39',
+    'Legacy': 'genepattern/genepattern-notebook:21.12',
 }
+c.DockerSpawner.escape = spawner_escape
 c.DockerSpawner.network_name = 'repo'
 c.DockerSpawner.remove_containers = True
 c.DockerSpawner.debug = True
@@ -32,21 +33,14 @@ c.DockerSpawner.volumes = {
     os.path.join(os.environ['DATA_DIR'] + '/users/{raw_username}/{servername}'): '/home/jovyan',  # Mount users directory
 }
 
-# Mount the user's directory in the singleuser containers
-if 'DATA_DIR' in os.environ:
-    c.DockerSpawner.pre_spawn_hook = lambda spawner: os.makedirs(os.path.join(os.environ['DATA_DIR'], 'users', spawner.user.name, spawner.name), 0o777, exist_ok=True)
-    c.DockerSpawner.volumes = {
-        os.environ['DATA_DIR'] + '/users/{raw_username}': '/home/jovyan',    # Mount users directory
-    }
-
 # Add the theme config
-c.JupyterHub.logo_file = '/opt/conda/share/jupyterhub/static/images/gpnb.png'
+c.JupyterHub.logo_file = '/srv/notebook-repository/theme/images/gpnb.png'
 c.JupyterHub.template_paths = ['/srv/notebook-repository/theme/templates']
 
 # Named server config
 c.JupyterHub.allow_named_servers = True
 c.JupyterHub.default_url = '/home'
-c.JupyterHub.extra_handlers = [('user.json', UserHandler), ('preview', PreviewHandler)]
+c.JupyterHub.extra_handlers = [('user.json', UserHandler), ('preview', PreviewHandler), ('stats', StatsHandler)]
 c.DockerSpawner.name_template = "{prefix}-{username}-{servername}"
 
 # Services API configuration
@@ -59,8 +53,7 @@ c.JupyterHub.services = [
         'environment': {
             'IMAGE_WHITELIST': ','.join(c.DockerSpawner.image_whitelist.keys())
         },
-        'command': ['python', 'start-projects.py',
-                    f'--config=/data/projects_config.py']
+        'command': ['python', 'start-projects.py', '--config=/data/projects_config.py']
     },
     {
         'name': 'cull-idle',
