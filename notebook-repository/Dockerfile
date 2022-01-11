@@ -32,7 +32,7 @@ RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-py37_4.8.3-Linux-x86_
     bash /tmp/miniconda.sh -f -b -p /opt/conda && \
     /opt/conda/bin/conda install --yes -c conda-forge \
       python=3.7 sqlalchemy tornado jinja2 traitlets requests pip pycurl ruamel.yaml jupyterhub=1.1.0 \
-      nodejs configurable-http-proxy && \
+      nodejs configurable-http-proxy pymysql && \
     /opt/conda/bin/pip install --upgrade pip && \
     rm /tmp/miniconda.sh
 ENV PATH=/opt/conda/bin:$PATH
@@ -41,7 +41,7 @@ ENV PATH=/opt/conda/bin:$PATH
 ##      Force builds with new releases     ##
 #############################################
 
-RUN echo '22.01, Tornado async fix'
+RUN echo '22.01.1, mysql+pymysql support for projects'
 
 #############################################
 ##      Add the repository webservice      ##
