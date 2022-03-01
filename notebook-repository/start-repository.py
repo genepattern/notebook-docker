@@ -57,12 +57,12 @@ for subdir in required_subdirs:
         sys.exit(f'{subdir_path} is not a directory')
 
 # Check if necessary files exist
-db_exists = os.path.exists(os.path.join(args.data, 'db.sqlite3'))
+db_exists = os.path.exists(os.path.join(args.data, 'jupyterhub.sqlite'))
 config_exists = os.path.exists(os.path.join(args.data, 'jupyterhub_config.py'))
-settings_exists = os.path.exists(os.path.join(args.data, 'settings.py'))
+projects_exists = os.path.exists(os.path.join(args.data, 'projects_config.py'))
 
 # Start temp container and copy files, if necessary
-if not db_exists or not config_exists or not settings_exists:
+if not db_exists or not config_exists or not projects_exists:
     print('Starting temporary container')
     subprocess.Popen('docker run --name=copy_data genepattern/notebook-repository'.split())
     subprocess.run('sleep 10'.split())
@@ -70,20 +70,20 @@ if not db_exists or not config_exists or not settings_exists:
 # Get the database, if necessary
 if not db_exists:
     print('Copying database')
-    subprocess.run(f'docker cp copy_data:/data/db.sqlite3 {args.data}/db.sqlite3'.split())
+    subprocess.run(f'docker cp copy_data:/data/jupyterhub.sqlite {args.data}/jupyterhub.sqlite'.split())
 
 # Get the config file, if necessary
-if not os.path.exists(os.path.join(args.data, 'jupyterhub_config.py')):
+if not config_exists:
     print('Copying configuration')
     subprocess.run(f'docker cp copy_data:/data/jupyterhub_config.py {args.data}/jupyterhub_config.py'.split())
 
 # Get the settings file, if necessary
-if not os.path.exists(os.path.join(args.data, 'settings.py')):
+if not projects_exists:
     print('Copying settings')
-    subprocess.run(f'docker cp copy_data:/data/settings.py {args.data}/settings.py'.split())
+    subprocess.run(f'docker cp copy_data:/data/projects_config.py {args.data}/projects_config.py'.split())
 
 # Clean up the temporary container
-if not db_exists or not config_exists or not settings_exists:
+if not db_exists or not config_exists or not projects_exists:
     print('Shutting down temporary container')
     subprocess.run('docker stop copy_data'.split())
     subprocess.run('docker rm copy_data'.split())

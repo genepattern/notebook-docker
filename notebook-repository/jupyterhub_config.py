@@ -1,4 +1,5 @@
 import os
+import sys
 from projects.hub import UserHandler, PreviewHandler, StatsHandler, pre_spawn_hook, spawner_escape
 
 c = get_config()
@@ -28,9 +29,9 @@ c.DockerSpawner.escape = spawner_escape
 c.DockerSpawner.network_name = 'repo'
 c.DockerSpawner.remove_containers = True
 c.DockerSpawner.debug = True
-c.DockerSpawner.pre_spawn_hook = lambda spawner: pre_spawn_hook(spawner, userdir=os.environ['DATA_DIR'] + '/users')
+c.DockerSpawner.pre_spawn_hook = lambda spawner: pre_spawn_hook(spawner, userdir='/data/users')
 c.DockerSpawner.volumes = {
-    os.path.join(os.environ['DATA_DIR'] + '/users/{raw_username}/{servername}'): '/home/jovyan',  # Mount users directory
+    os.path.join('/data/users/{raw_username}/{servername}'): '/home/jovyan',  # Mount users directory
 }
 
 # Add the theme config
@@ -44,10 +45,30 @@ c.JupyterHub.extra_handlers = [('user.json', UserHandler), ('preview', PreviewHa
 c.DockerSpawner.name_template = "{prefix}-{username}-{servername}"
 
 # Services API configuration
+c.JupyterHub.load_roles = [
+    {
+        "name": "projects",
+        "scopes": [
+            "self",
+        ],
+        "services": ["projects"],
+    },
+    {
+        "name": "jupyterhub-idle-culler-role",
+        "scopes": [
+            "list:users",
+            "read:users:activity",
+            "read:servers",
+            "delete:servers",
+        ],
+        # assignment of role's permissions to:
+        "services": ["jupyterhub-idle-culler-service"],
+    }
+]
+
 c.JupyterHub.services = [
     {
         'name': 'projects',
-        'admin': True,
         'url': 'http://127.0.0.1:3000/',
         'cwd': '/srv/notebook-repository/',
         'environment': {
@@ -56,9 +77,8 @@ c.JupyterHub.services = [
         'command': ['python', 'start-projects.py', '--config=/data/projects_config.py']
     },
     {
-        'name': 'cull-idle',
-        'admin': True,
-        'command': ['python', '/srv/notebook-repository/scripts/cull-idle.py', '--timeout=3600']
+        "name": "jupyterhub-idle-culler-service",
+        "command": [sys.executable, "-m", "jupyterhub_idle_culler", "--timeout=3600"],
     }
 ]
 
