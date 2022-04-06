@@ -73,6 +73,16 @@ RUN cd /home/$NB_USER && \
     jupyter nbextension enable --sys-prefix --py qgrid && \
     echo "/home/jovyan/.local/lib/python3.9/site-packages" > /opt/conda/lib/python3.9/site-packages/conda.pth
 
+##############################################
+###  $NB_USER                               ##
+###      Update security cert               ##
+##############################################
+
+COPY cacert.pem /srv/notebook-repository/cacert.pem
+RUN cat /srv/notebook-repository/cacert.pem >> /opt/conda/lib/python3.9/site-packages/certifi/cacert.pem && \
+    cat /srv/notebook-repository/cacert.pem >> /opt/conda/lib/python3.9/ssl/cacert.pem && \
+    rm /srv/notebook-repository/cacert.pem
+
 #############################################
 ##  $NB_USER                               ##
 ##      Enable nano and vi                 ##
